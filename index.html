@@ -1574,6 +1574,7 @@ div.cell { cursor: default; }
   /* ---------- 畫面切換 ---------- */
   var screens = ["s-home", "s-levels", "s-game"];
   function show(id) {
+    if (id !== "s-game") clearTimeout(endDialogTimer);
     screens.forEach(function (s) { $(s).hidden = s !== id; });
     syncClock();
   }
@@ -1632,7 +1633,7 @@ div.cell { cursor: default; }
   }
 
   /* ---------- 遊戲狀態 ---------- */
-  var G = null, cellEls = [], drag = null, tickTimer = 0;
+  var G = null, cellEls = [], drag = null, tickTimer = 0, endDialogTimer = 0;
 
   function newGame(mode, index, dkey) {
     var p = mode === "daily" ? L.daily[index] : L.campaign[index];
@@ -1644,6 +1645,7 @@ div.cell { cursor: default; }
     };
   }
   function startGame(mode, index, dkey) {
+    clearTimeout(endDialogTimer);
     if (!(G && !G.over && G.mode === mode && G.index === index && G.dkey === (dkey || null))) { G = newGame(mode, index, dkey); SFX.start(); }
     mountGame();
   }
@@ -1661,6 +1663,8 @@ div.cell { cursor: default; }
     for (var i = 0; i < G.cells.length; i++) paint(i);
     setRoving(G.focus || 0);
     renderHud(); renderHint();
+    $("btn-pause").innerHTML = ART.icon(G.paused ? "play" : "pause");
+    $("btn-pause").setAttribute("aria-label", G.paused ? "繼續" : "暫停");
     $("pause-cover").hidden = !G.paused; $("board").style.visibility = G.paused ? "hidden" : "";
     show("s-game");
   }
@@ -1845,12 +1849,19 @@ div.cell { cursor: default; }
     $("confetti").innerHTML = conf;
     $("copy-fallback").hidden = true;
     $("btn-win-copy").textContent = "複製成績";
-    setTimeout(function () { openDialog("dlg-win", G.mode === "campaign" ? "btn-win-next" : "btn-win-copy"); }, 650);
+    scheduleEndDialog("dlg-win", G.mode === "campaign" ? "btn-win-next" : "btn-win-copy", 650);
+  }
+  function scheduleEndDialog(id, focusId, delay) {
+    clearTimeout(endDialogTimer);
+    var game = G;
+    endDialogTimer = setTimeout(function () {
+      if (G === game && G && G.over && !$("s-game").hidden) openDialog(id, focusId);
+    }, delay);
   }
   function lose() {
     G.over = true; syncClock(); SFX.lose();
     $("lose-dog").innerHTML = ART.dog(G.index);
-    setTimeout(function () { openDialog("dlg-lose", "btn-lose-retry"); }, 550);
+    scheduleEndDialog("dlg-lose", "btn-lose-retry", 550);
   }
   function retry() { var g = G; G = null; closeDialog(); startGame(g.mode, g.index, g.dkey); }
   function leaveGame() {
@@ -1996,7 +2007,7 @@ div.cell { cursor: default; }
     $("btn-win-copy").onclick = copyScore;
     $("btn-win-home").onclick = function () { closeDialog(); G = null; goHome(); };
     $("btn-lose-retry").onclick = retry;
-    $("btn-lose-back").onclick = function () { G = null; leaveGame(); };
+    $("btn-lose-back").onclick = function () { leaveGame(); G = null; };
     document.addEventListener("visibilitychange", syncClock);
     /* 音效：第一次碰畫面就解鎖；一般按鈕點下去有「喀」一聲（棋盤格、開始玩另有專屬音） */
     ["pointerdown", "keydown"].forEach(function (ev) { document.addEventListener(ev, SFX.unlock, { capture: true, passive: true }); });
