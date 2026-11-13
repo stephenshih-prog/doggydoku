@@ -47,12 +47,14 @@ test('reentering a paused game resets pause button', t => {
   assert.equal(a.getG().paused, false);
   assert.equal(el('btn-pause').getAttribute('aria-label'), '暫停');
 });
-test('normal win still opens its dialog', async t => {
+test('normal win celebrates for five seconds then opens its dialog', async t => {
   const { a, el } = setup(t);
   a.startGame('campaign', 0);
   const g = a.getG();
   g.p.solution.forEach((c, r) => a.tryDog(r * g.n + c));
-  await wait(700);
+  assert.equal(el('dlg-dance').hidden, false);
+  await wait(5100);
+  assert.equal(el('dlg-dance').hidden, true);
   assert.equal(el('dlg-win').hidden, false);
 });
 test('leaving a loss then starting a new game prevents stale loss dialog', async t => {
@@ -65,4 +67,44 @@ test('leaving a loss then starting a new game prevents stale loss dialog', async
   await wait(600);
   assert.equal(a.getG().over, false);
   assert.equal(el('dlg-lose').hidden, true);
+});
+
+function solve(a) { const g = a.getG(); g.p.solution.forEach((c, r) => a.tryDog(r * g.n + c)); }
+test('all five random variants render and skip to the next level without stale results', async t => {
+  for (let variant = 0; variant < 5; variant++) {
+    const { w, a, el } = setup(t);
+    a.startGame('campaign', 0);
+    w.Math.random = () => (variant + 0.1) / 5;
+    solve(a);
+    assert.equal(el('dance-stage').dataset.variant, String(variant));
+    assert.ok(el('dance-stage').shadowRoot.querySelector('.stage'));
+    assert.equal(w.document.activeElement.id, 'btn-dance-skip');
+    el('btn-dance-skip').click();
+    el('btn-dance-skip').click(); // stale/double click must not skip another level
+    assert.equal(a.getG().index, 1);
+    assert.equal(a.getG().over, false);
+    assert.equal(el('dlg-dance').hidden, true);
+    await wait(5100);
+    assert.equal(el('dlg-win').hidden, true);
+    assert.equal(a.getG().index, 1);
+  }
+});
+test('daily and final campaign skip to results, never to another puzzle', t => {
+  const { a, el } = setup(t);
+  for (const [mode, index, date] of [['daily', 0, '2026-11-13'], ['campaign', a.getL().campaign.length - 1, undefined]]) {
+    a.startGame(mode, index, date); solve(a);
+    assert.equal(el('btn-dance-skip').textContent, '略過，看成績');
+    el('btn-dance-skip').click();
+    assert.equal(el('dlg-win').hidden, false);
+    assert.equal(a.getG().mode, mode);
+    assert.equal(a.getG().index, index);
+    el('btn-win-home').click();
+  }
+});
+test('curtain dance includes every dog in a nine-dog puzzle', t => {
+  const { w, a, el } = setup(t);
+  const index = a.getL().campaign.findIndex(p => p.n === 9);
+  a.startGame('campaign', index); w.Math.random = () => 0.65; solve(a);
+  assert.equal(el('dance-stage').shadowRoot.querySelectorAll('.puppy').length, 9);
+  assert.ok(JSON.parse(w.localStorage.getItem(w.localStorage.key(0))).campaign[a.getG().p.id]);
 });
