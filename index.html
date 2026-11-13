@@ -1,0 +1,2054 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Doggydoku</title>
+<meta name="description" content="每一列、每一行、每一塊草皮，都只住一隻狗狗。60 關闖關加每日一題的邏輯解謎小遊戲。">
+<meta property="og:title" content="Doggydoku">
+<meta property="og:description" content="每一列、每一行、每一塊草皮，都只住一隻狗狗。60 關闖關加每日一題的邏輯解謎小遊戲。">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#d6e9bd">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%90%B6%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chewy&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Huninn&display=swap">
+<style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
+</head>
+<body>
+<style>
+/* 版面：一屏式的狗公園繪本。草地色鋪底、深綠粗線手繪框、網球黃與項圈紅各管一件事。 */
+:root {
+  --grass: #d6e9bd;
+  --tuft: rgba(58, 96, 44, .13);
+  --paper: #fffdf2;
+  --ink: #233020;
+  --ink-soft: #55664b;
+  --line: #233020;
+  --thin: rgba(35, 48, 32, .28);
+  --shadow: #233020;
+  --ball: #dcf04a;
+  --on-ball: #233020;
+  --collar: #e2452a;
+  --on-collar: #fff;
+  --focus: #1c5fd6;
+  --veil: rgba(35, 48, 32, .55);
+  --mark: rgba(35, 48, 32, .62);
+  --locked: #c3d6ab;
+  /* 九塊草皮：色相之外明度也錯開 */
+  --r0: #f3a55c; --r1: #8fc8ea; --r2: #f7dc6a; --r3: #b7a4dc; --r4: #f6f0e2;
+  --r5: #7fc48c; --r6: #f4a3ba; --r7: #b98a63; --r8: #63aaa2;
+  --f-display: "Chewy", "Huninn", "Arial Rounded MT Bold", "PingFang TC", "Microsoft JhengHei", sans-serif;
+  --f-body: "Huninn", "Noto Sans TC", "PingFang TC", "Hiragino Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
+  --wob: 16px 20px 15px 22px / 20px 15px 22px 16px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --grass: #16231a; --tuft: rgba(160, 210, 130, .07); --paper: #223328; --ink: #ecf3dd; --ink-soft: #a9bb9c;
+    --line: #0b120d; --thin: rgba(11, 18, 13, .4); --shadow: #080d09; --ball: #dcf04a; --on-ball: #1b2618;
+    --collar: #f0563a; --on-collar: #fff; --focus: #9cc4ff; --veil: rgba(5, 9, 6, .7); --mark: rgba(255, 255, 255, .78);
+    --locked: #2c3f31;
+    --r0: #b96a2c; --r1: #3f82ad; --r2: #b49a2c; --r3: #7a66aa; --r4: #8f897a;
+    --r5: #3f8a54; --r6: #b3627c; --r7: #6f4a30; --r8: #2c706a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --grass: #16231a; --tuft: rgba(160, 210, 130, .07); --paper: #223328; --ink: #ecf3dd; --ink-soft: #a9bb9c;
+  --line: #0b120d; --thin: rgba(11, 18, 13, .4); --shadow: #080d09; --ball: #dcf04a; --on-ball: #1b2618;
+  --collar: #f0563a; --on-collar: #fff; --focus: #9cc4ff; --veil: rgba(5, 9, 6, .7); --mark: rgba(255, 255, 255, .78);
+  --locked: #2c3f31;
+  --r0: #b96a2c; --r1: #3f82ad; --r2: #b49a2c; --r3: #7a66aa; --r4: #8f897a;
+  --r5: #3f8a54; --r6: #b3627c; --r7: #6f4a30; --r8: #2c706a;
+  color-scheme: dark;
+}
+
+html, body { height: 100%; }
+body {
+  margin: 0; background: var(--grass); color: var(--ink);
+  font-family: var(--f-body); font-size: 16px; line-height: 1.55;
+  -webkit-tap-highlight-color: transparent; overflow: hidden;
+}
+body::before {
+  content: ""; position: fixed; inset: 0; pointer-events: none; background: var(--tuft);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='150'%3E%3Cg%3E%3Cpath d='M20 40l4-14 3 12 5-16 2 18z'/%3E%3Cpath d='M118 112l4-14 3 12 5-16 2 18z'/%3E%3Cg transform='translate(96 24) rotate(20)'%3E%3Cellipse cx='12' cy='16' rx='5.500' ry='4.500'/%3E%3Cellipse cx='5' cy='10' rx='2.200' ry='3'/%3E%3Cellipse cx='9.500' cy='6' rx='2.200' ry='3'/%3E%3Cellipse cx='14.500' cy='6' rx='2.200' ry='3'/%3E%3Cellipse cx='19' cy='10' rx='2.200' ry='3'/%3E%3C/g%3E%3Cg transform='translate(34 96) rotate(-24)'%3E%3Cellipse cx='12' cy='16' rx='5.500' ry='4.500'/%3E%3Cellipse cx='5' cy='10' rx='2.200' ry='3'/%3E%3Cellipse cx='9.500' cy='6' rx='2.200' ry='3'/%3E%3Cellipse cx='14.500' cy='6' rx='2.200' ry='3'/%3E%3Cellipse cx='19' cy='10' rx='2.200' ry='3'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") 0 0 / 180px 150px;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='150'%3E%3Cg%3E%3Cpath d='M20 40l4-14 3 12 5-16 2 18z'/%3E%3Cpath d='M118 112l4-14 3 12 5-16 2 18z'/%3E%3Cg transform='translate(96 24) rotate(20)'%3E%3Cellipse cx='12' cy='16' rx='5.500' ry='4.500'/%3E%3Cellipse cx='5' cy='10' rx='2.200' ry='3'/%3E%3Cellipse cx='9.500' cy='6' rx='2.200' ry='3'/%3E%3Cellipse cx='14.500' cy='6' rx='2.200' ry='3'/%3E%3Cellipse cx='19' cy='10' rx='2.200' ry='3'/%3E%3C/g%3E%3Cg transform='translate(34 96) rotate(-24)'%3E%3Cellipse cx='12' cy='16' rx='5.500' ry='4.500'/%3E%3Cellipse cx='5' cy='10' rx='2.200' ry='3'/%3E%3Cellipse cx='9.500' cy='6' rx='2.200' ry='3'/%3E%3Cellipse cx='14.500' cy='6' rx='2.200' ry='3'/%3E%3Cellipse cx='19' cy='10' rx='2.200' ry='3'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") 0 0 / 180px 150px;
+}
+#app { position: relative; height: 100%; }
+button { font: inherit; color: inherit; }
+h1, h2, p, ul, ol, dl, dd { margin: 0; padding: 0; }
+ul, ol { list-style: none; }
+.ic { width: 1.25em; height: 1.25em; display: block; flex: none; }
+.dog { display: block; width: 100%; height: 100%; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+.screen { height: 100%; box-sizing: border-box; padding-inline: 16px; padding-block: 12px; overflow-y: auto; }
+
+/* ---------- 按鈕 ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 44px; padding: 6px 18px; box-sizing: border-box;
+  background: var(--paper); color: var(--ink); border: 2.5px solid var(--line); border-radius: var(--wob);
+  box-shadow: 2px 3px 0 var(--shadow); font-weight: 700; cursor: pointer;
+  transition: transform .08s, box-shadow .08s; touch-action: manipulation;
+}
+.btn:active:not(:disabled) { transform: translate(2px, 3px); box-shadow: 0 0 0 var(--shadow); }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.btn.go { background: var(--ball); color: var(--on-ball); }
+.btn.small { min-height: 40px; padding: 4px 14px; font-size: 15px; }
+.btn.icon { width: 44px; padding: 0; flex: none; }
+.btn.icon .ic { width: 24px; height: 24px; }
+.btn.danger { color: var(--collar); }
+.btn.danger.solid { background: var(--collar); color: var(--on-collar); }
+
+/* ---------- 首頁 ---------- */
+.home { display: grid; place-items: center; }
+.home-in {
+  width: 100%; max-width: 860px; display: grid; gap: 14px 40px; justify-items: center;
+  grid-template-areas: "brand" "hero" "nav";
+}
+.brand { grid-area: brand; text-align: center; }
+.logo {
+  font-family: var(--f-display); font-weight: 400; line-height: .9; letter-spacing: .01em;
+  font-size: clamp(60px, 19vw, 104px); transform: rotate(-4deg); color: var(--ink);
+  text-shadow: 3px 4px 0 var(--ball);
+}
+.logo span { color: var(--collar); }
+.tag { margin-top: 22px; color: var(--ink-soft); font-size: 15px; text-wrap: balance; }
+.hero { grid-area: hero; width: min(58vw, 34vh, 300px); transform: rotate(3deg); }
+.home-nav { grid-area: nav; width: 100%; max-width: 360px; display: grid; gap: 12px; }
+.btn.big { min-height: 66px; flex-direction: column; gap: 0; padding: 8px 18px; }
+.big-t { font-size: 22px; line-height: 1.2; }
+.big-s { font-size: 13.5px; font-weight: 400; opacity: .85; display: inline-flex; align-items: center; gap: 4px; min-height: 1.4em; }
+.big-s .ic { width: 1em; height: 1em; }
+.home-foot { display: flex; gap: 12px; justify-content: center; }
+.home-foot .btn { flex: 1; }
+@media (min-width: 760px) and (min-height: 520px) {
+  .home-in { grid-template-areas: "brand hero" "nav hero"; grid-template-columns: 1fr 1fr; align-items: center; justify-items: start; }
+  .brand { text-align: left; align-self: end; }
+  .home-nav { align-self: start; }
+  .hero { width: min(36vw, 60vh, 380px); justify-self: center; }
+  .logo { font-size: clamp(80px, 9vw, 120px); }
+}
+
+/* ---------- 頂列 ---------- */
+.bar { display: flex; align-items: center; gap: 10px; }
+.bar-title-wrap { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.2; }
+.bar-title { font-size: 20px; line-height: 1.2; flex: 1; min-width: 0; }
+.bar-title-wrap .bar-title { flex: none; }
+.bar-note { font-size: 13.5px; color: var(--ink-soft); }
+
+/* ---------- 關卡選單 ---------- */
+.levels { display: flex; flex-direction: column; gap: 14px; }
+.levels .bar, .level-list { width: 100%; max-width: 620px; margin-inline: auto; }
+.level-list { display: flex; flex-direction: column; gap: 18px; padding-bottom: 24px; }
+.class-h { display: flex; align-items: baseline; gap: 10px; margin-bottom: 8px; }
+.class-h b { font-family: var(--f-display); font-weight: 400; font-size: 26px; line-height: 1; }
+.class-h span { font-size: 14px; color: var(--ink-soft); }
+.lv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(62px, 1fr)); gap: 10px; }
+.lv {
+  position: relative; aspect-ratio: 1 / 1.12; padding: 4px 2px; min-width: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+  background: var(--paper); color: var(--ink); border: 2.5px solid var(--line); border-radius: var(--wob);
+  box-shadow: 2px 3px 0 var(--shadow); cursor: pointer; font-weight: 700;
+}
+.lv-n { font-family: var(--f-display); font-weight: 400; font-size: 24px; line-height: 1; }
+.lv-m { font-size: 11px; line-height: 1.15; font-weight: 400; font-variant-numeric: tabular-nums; display: flex; flex-direction: column; align-items: center; }
+.lv-m .hrow { display: flex; gap: 1px; color: var(--collar); }
+.lv-m .ic { width: 9px; height: 9px; }
+.lv.done .lv-face { width: 46%; aspect-ratio: 1; }
+.lv.done .lv-n { font-size: 14px; position: absolute; top: 3px; left: 7px; }
+.lv.now { background: var(--ball); color: var(--on-ball); }
+.lv.now .lv-n { font-size: 30px; }
+.lv.now .lv-m { font-size: 12px; font-weight: 700; }
+.lv.locked { background: var(--locked); color: var(--ink-soft); box-shadow: none; border-style: dashed; cursor: not-allowed; }
+.lv.locked .ic { width: 14px; height: 14px; opacity: .7; }
+.lv:active:not(.locked) { transform: translate(2px, 3px); box-shadow: none; }
+
+/* ---------- 遊戲 ---------- */
+.game { display: flex; flex-direction: column; gap: 10px; max-width: 620px; margin-inline: auto; overflow: hidden; }
+.status { display: flex; align-items: center; justify-content: space-between; min-height: 30px; }
+.hearts { display: flex; gap: 4px; color: var(--collar); }
+.hearts .ic { width: 28px; height: 28px; }
+.hearts .gone { --hf: transparent; color: var(--ink-soft); opacity: .6; }
+.hearts .lost { animation: heart-out .5s; }
+.timer { display: flex; align-items: center; gap: 6px; font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.timer .ic { width: 20px; height: 20px; color: var(--ink-soft); }
+.stage { flex: 1; min-height: 0; container-type: size; display: grid; place-items: center; }
+.board-wrap { position: relative; width: min(100cqw - 4px, 100cqh - 6px, 560px); aspect-ratio: 1; margin: 0 4px 6px 0; }
+
+.board {
+  --n: 5; display: grid; grid-template-columns: repeat(var(--n), 1fr); grid-template-rows: repeat(var(--n), 1fr);
+  width: 100%; height: 100%; box-sizing: border-box; aspect-ratio: 1;
+  border: 4px solid var(--line); border-radius: 14px; overflow: hidden; background: var(--line);
+  box-shadow: 4px 6px 0 var(--shadow); touch-action: none; user-select: none; -webkit-user-select: none;
+}
+.board.mini { border-width: 3px; border-radius: 12px; touch-action: auto; }
+.cell {
+  position: relative; min-width: 0; min-height: 0; padding: 0; margin: 0; border: 0 solid var(--line);
+  display: grid; place-items: center; background: var(--rc); color: var(--mark); cursor: pointer;
+  -webkit-appearance: none; appearance: none; border-radius: 0;
+}
+div.cell { cursor: default; }
+.cell.t1 { border-top: 1px solid var(--thin); } .cell.t2 { border-top: 3px solid var(--line); }
+.cell.l1 { border-left: 1px solid var(--thin); } .cell.l2 { border-left: 3px solid var(--line); }
+.r0 { --rc: var(--r0); } .r1 { --rc: var(--r1); } .r2 { --rc: var(--r2); } .r3 { --rc: var(--r3); } .r4 { --rc: var(--r4); }
+.r5 { --rc: var(--r5); } .r6 { --rc: var(--r6); } .r7 { --rc: var(--r7); } .r8 { --rc: var(--r8); }
+.cell:focus-visible { outline: 3px solid var(--focus); outline-offset: -4px; z-index: 2; }
+.cell .ic { width: 36%; height: 36%; position: absolute; inset: 0; margin: auto; }
+.cell .dog { width: 88%; height: 88%; position: absolute; inset: 0; margin: auto; }
+.cell.s-x .ic { animation: mark-in .14s ease-out; }
+.cell.s-no { color: var(--collar); }
+.cell.s-no .ic { width: 50%; height: 50%; }
+.cell.s-no::before { content: ""; position: absolute; inset: 0; background: var(--paper); opacity: .55; }
+.cell.shake { animation: shake .4s; z-index: 1; }
+.cell.pop .dog { animation: pop .45s cubic-bezier(.3, 1.7, .5, 1); }
+.cell.h-why::after, .cell.h-go::after { content: ""; position: absolute; inset: 0; pointer-events: none; }
+.cell.h-why::after { background: repeating-linear-gradient(135deg, var(--ball) 0 5px, transparent 5px 11px); opacity: .6; }
+.cell.h-go::after { inset: 3px; border: 4px solid var(--collar); border-radius: 10px; background: var(--ball); opacity: .9; animation: pulse 1s ease-in-out infinite alternate; }
+.cell.h-go .ic, .cell.h-go .dog { z-index: 1; }
+
+.pause-cover {
+  position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+  background: var(--paper); border: 4px solid var(--line); border-radius: 14px; font-weight: 700; font-size: 18px;
+}
+
+.bottom { min-height: 104px; display: flex; flex-direction: column; justify-content: center; }
+.toolbar { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: stretch; }
+.seg { display: grid; grid-template-columns: 1fr 1fr; border: 2.5px solid var(--line); border-radius: var(--wob); overflow: hidden; background: var(--paper); box-shadow: 2px 3px 0 var(--shadow); }
+.seg-b {
+  display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 52px; padding: 4px 6px;
+  background: none; border: 0; font-weight: 700; cursor: pointer; color: var(--ink-soft); touch-action: manipulation;
+}
+.seg-b + .seg-b { border-left: 2.5px solid var(--line); }
+.seg-b[aria-pressed="true"] { background: var(--ball); color: var(--on-ball); }
+.seg-b:focus-visible { outline-offset: -4px; }
+.seg-ic { width: 26px; height: 26px; display: grid; place-items: center; }
+.seg-ic .ic { width: 20px; height: 20px; }
+.tips { margin: 0; display: flex; flex-direction: column; justify-content: center; gap: 4px; min-width: 0; font-size: 13px; font-weight: 700; color: var(--ink-soft); line-height: 1.2; }
+.tip { display: flex; align-items: center; gap: 6px; }
+.tip-ic { width: 22px; height: 22px; flex: none; display: grid; place-items: center; }
+.tip-ic .ic { width: 16px; height: 16px; }
+.tip-ic .dog { width: 22px; height: 22px; }
+.btn.tool { flex-direction: column; gap: 0; min-height: 56px; padding: 4px 12px; font-size: 13px; min-width: 62px; }
+.btn.tool .ic { width: 22px; height: 22px; }
+.tool-l { white-space: nowrap; line-height: 1.2; }
+.hintb b { font-family: var(--f-display); font-weight: 400; font-size: 15px; }
+
+.hint-panel { display: flex; flex-direction: column; gap: 8px; }
+.hint-say { display: flex; gap: 10px; align-items: center; background: var(--paper); border: 2.5px solid var(--line); border-radius: var(--wob); padding: 6px 12px; }
+.hint-dog { width: 40px; height: 40px; flex: none; }
+.hint-say p { font-size: 14.5px; line-height: 1.4; min-width: 0; }
+.hint-acts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+/* ---------- 對話框 ---------- */
+.overlay { position: fixed; inset: 0; z-index: 10; background: var(--veil); display: grid; place-items: center; padding: 16px; overflow-y: auto; }
+.sheet {
+  position: relative; width: 100%; max-width: 440px; box-sizing: border-box; padding: 20px 20px 18px;
+  background: var(--paper); border: 3px solid var(--line); border-radius: 22px 26px 20px 28px / 26px 20px 28px 22px;
+  box-shadow: 5px 7px 0 var(--shadow); display: flex; flex-direction: column; gap: 14px; animation: sheet-in .22s ease-out;
+}
+.sheet h2 { font-size: 24px; line-height: 1.2; text-wrap: balance; }
+.sheet-acts { display: flex; gap: 10px; justify-content: flex-end; }
+.sheet-acts.col { flex-direction: column; align-items: stretch; }
+.howto-grid { display: grid; grid-template-columns: 112px 1fr; gap: 14px; align-items: center; }
+.rules { display: flex; flex-direction: column; gap: 6px; font-size: 14.5px; line-height: 1.45; }
+.rules strong { color: var(--collar); }
+.legend { display: flex; flex-direction: column; gap: 8px; font-size: 14px; line-height: 1.4; }
+.legend li { display: grid; grid-template-columns: 40px 1fr; gap: 10px; align-items: center; }
+.lg-cell { position: relative; width: 40px; height: 40px; box-sizing: border-box; border: 2.5px solid var(--line); border-radius: 8px; background: var(--rc); display: grid; place-items: center; color: var(--mark); }
+.lg-cell .ic { width: 18px; height: 18px; }
+.lg-cell .dog { width: 34px; height: 34px; }
+#lg-no { color: var(--collar); } #lg-no .ic { width: 24px; height: 24px; }
+.fine { font-size: 13px; color: var(--ink-soft); line-height: 1.45; }
+
+.switch-row { display: flex; gap: 14px; align-items: center; justify-content: space-between; cursor: pointer; }
+.switch-row small { display: block; font-size: 13px; color: var(--ink-soft); line-height: 1.4; }
+.switch { -webkit-appearance: none; appearance: none; flex: none; width: 54px; height: 32px; margin: 0; border: 2.5px solid var(--line); border-radius: 20px; background: var(--locked); position: relative; cursor: pointer; transition: background .15s; }
+.switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 23px; height: 23px; border-radius: 50%; background: var(--paper); border: 2px solid var(--line); box-sizing: border-box; transition: transform .15s; }
+.switch:checked { background: var(--ball); }
+.switch:checked::after { transform: translateX(22px); }
+.reset { border-top: 2px dashed var(--thin); padding-top: 14px; display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+.reset-confirm { display: flex; flex-wrap: wrap; gap: 8px 10px; align-items: center; }
+.reset-confirm p { flex-basis: 100%; font-size: 14px; }
+
+.win, .lose { text-align: center; align-items: stretch; }
+.win-dogs { display: flex; justify-content: center; gap: 2px; height: 52px; }
+.win-dogs .dog { width: 46px; height: 46px; flex: 0 1 46px; min-width: 0; animation: hop .7s ease-in-out infinite alternate; }
+.win-dogs .dog:nth-child(2n) { animation-delay: .18s; } .win-dogs .dog:nth-child(3n) { animation-delay: .36s; }
+.win-sub { color: var(--ink-soft); font-size: 14.5px; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); border: 2.5px solid var(--line); border-radius: var(--wob); overflow: hidden; }
+.stats div { padding: 8px 4px; }
+.stats div + div { border-left: 2px dashed var(--thin); }
+.stats dt { font-size: 12.5px; color: var(--ink-soft); letter-spacing: .08em; }
+.stats dd { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; display: flex; justify-content: center; gap: 2px; align-items: center; min-height: 34px; color: var(--ink); }
+.stats dd .ic { width: 22px; height: 22px; color: var(--collar); }
+.stats dd .gone { --hf: transparent; color: var(--ink-soft); }
+.lose-dog { width: 84px; height: 84px; margin: 0 auto; transform: rotate(-8deg); filter: grayscale(.5); }
+.copy-fallback { display: flex; flex-direction: column; gap: 6px; text-align: left; font-size: 13px; }
+.copy-fallback textarea { font: inherit; font-size: 14px; padding: 8px; border: 2px solid var(--line); border-radius: 8px; background: var(--grass); color: var(--ink); resize: none; user-select: text; -webkit-user-select: text; }
+
+.confetti { position: fixed; inset: 0; overflow: hidden; pointer-events: none; }
+.confetti .ic { position: absolute; top: -40px; width: 30px; height: 30px; color: var(--line); --bf: var(--paper); animation: fall linear 1 both; }
+.confetti .ic.p { color: var(--collar); }
+
+.toast {
+  position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 20;
+  max-width: calc(100% - 32px); box-sizing: border-box; padding: 8px 16px; background: var(--ink); color: var(--paper);
+  border-radius: 20px; font-size: 14.5px; font-weight: 700; text-align: center;
+}
+
+@keyframes pop { 0% { transform: scale(0) rotate(-25deg); } 100% { transform: scale(1) rotate(0); } }
+@keyframes shake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-12%); } 40% { transform: translateX(10%); } 60% { transform: translateX(-7%); } 80% { transform: translateX(4%); } }
+@keyframes mark-in { from { transform: scale(.3); opacity: 0; } }
+@keyframes pulse { from { transform: scale(.9); } to { transform: scale(1); } }
+@keyframes hop { from { transform: translateY(6px); } to { transform: translateY(-6px) rotate(6deg); } }
+@keyframes fall { to { transform: translateY(110vh) rotate(540deg); } }
+@keyframes sheet-in { from { transform: translateY(14px) scale(.97); opacity: 0; } }
+@keyframes heart-out { 0% { transform: scale(1.5); } 100% { transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .confetti { display: none; }
+}
+@media (max-height: 620px) {
+  .screen { padding-block: 8px; }
+  .game { gap: 6px; }
+  .btn.icon { min-height: 40px; width: 40px; }
+  .bottom { min-height: 96px; }
+}
+
+</style>
+<div id="app">
+
+  <section id="s-home" class="screen home">
+    <div class="home-in">
+      <header class="brand">
+        <h1 class="logo">Doggy<span>doku</span></h1>
+        <p class="tag">每一列、每一行、每一塊草皮，都只住一隻狗狗。</p>
+      </header>
+      <div class="hero" aria-hidden="true">
+        <div id="hero-board" class="board mini"></div>
+      </div>
+      <nav class="home-nav" aria-label="遊戲模式">
+        <button id="btn-campaign" class="btn big go" type="button">
+          <span class="big-t">闖關</span><span class="big-s" id="home-campaign-sub"></span>
+        </button>
+        <button id="btn-daily" class="btn big" type="button">
+          <span class="big-t">每日一題</span><span class="big-s" id="home-daily-sub"></span>
+        </button>
+        <div class="home-foot">
+          <button id="btn-howto" class="btn small" type="button">怎麼玩</button>
+          <button id="btn-settings-home" class="btn small" type="button">設定</button>
+        </div>
+      </nav>
+    </div>
+  </section>
+
+  <section id="s-levels" class="screen levels" hidden>
+    <header class="bar">
+      <button id="btn-levels-back" class="btn icon" type="button" aria-label="回首頁"></button>
+      <h2 class="bar-title">闖關</h2>
+      <span id="levels-progress" class="bar-note"></span>
+    </header>
+    <div id="level-list" class="level-list"></div>
+  </section>
+
+  <section id="s-game" class="screen game" hidden>
+    <header class="bar">
+      <button id="btn-game-back" class="btn icon" type="button" aria-label="離開這一題"></button>
+      <div class="bar-title-wrap">
+        <h2 id="g-title" class="bar-title"></h2>
+        <span id="g-sub" class="bar-note"></span>
+      </div>
+      <button id="btn-pause" class="btn icon" type="button" aria-label="暫停"></button>
+      <button id="btn-settings-game" class="btn icon" type="button" aria-label="設定"></button>
+    </header>
+    <div class="status">
+      <div id="hearts" class="hearts" role="img"></div>
+      <div class="timer"><span id="timer-ic"></span><span id="timer" class="timer-v">0:00</span></div>
+    </div>
+    <div class="stage">
+      <div class="board-wrap">
+        <div id="board" class="board" role="grid" aria-label="棋盤"></div>
+        <div id="pause-cover" class="pause-cover" hidden>
+          <p>狗狗們先休息一下</p>
+          <button id="btn-resume" class="btn go" type="button">繼續</button>
+        </div>
+      </div>
+    </div>
+    <div class="bottom">
+      <div id="toolbar" class="toolbar">
+        <p class="tips">
+          <span class="tip"><span class="tip-ic" id="tip-x"></span>點一下打叉</span>
+          <span class="tip"><span class="tip-ic" id="tip-dog"></span>連點兩下放狗狗</span>
+        </p>
+        <button id="btn-undo" class="btn tool" type="button"><span id="undo-ic"></span><span class="tool-l">復原</span></button>
+        <button id="btn-hint" class="btn tool hintb" type="button"><span id="hint-ic"></span><span class="tool-l">提示 <b id="hint-left">3</b></span></button>
+      </div>
+      <div id="hint-panel" class="hint-panel" hidden>
+        <div class="hint-say"><span id="hint-dog" class="hint-dog"></span><p id="hint-text" aria-live="polite"></p></div>
+        <div class="hint-acts">
+          <button id="btn-hint-apply" class="btn go" type="button">幫我做</button>
+          <button id="btn-hint-close" class="btn" type="button">我自己來</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div id="dlg-howto" class="overlay" hidden>
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="howto-h">
+      <h2 id="howto-h">怎麼玩</h2>
+      <div class="howto-grid">
+        <div id="howto-board" class="board mini" aria-hidden="true"></div>
+        <ul class="rules">
+          <li>每一列、每一行、每一塊顏色草皮，都剛好藏著<strong>一隻</strong>狗狗。</li>
+          <li>狗狗怕擠：兩隻狗不能相鄰，<strong>斜角也不行</strong>。</li>
+          <li>用刪去法把不可能的格子打叉，剩下的就是狗窩。</li>
+        </ul>
+      </div>
+      <ol class="legend">
+        <li><span class="lg-cell r1"><span id="lg-x"></span></span><span>點一下：打叉，表示這裡沒有狗；再點一下取消。按住拖曳可以連續打叉。</span></li>
+        <li><span class="lg-cell r1"><span id="lg-dog"></span></span><span>快速連點兩下：放狗狗。猜對牠會跳出來，周圍哪些格子要打叉，由你自己判斷。</span></li>
+        <li><span class="lg-cell r1"><span id="lg-no"></span></span><span>猜錯扣一顆心，三顆扣完就要重來。卡住時有三次提示。</span></li>
+      </ol>
+      <p class="fine">打錯叉可以再點一下、按「復原」，或從那個叉開始拖曳把它擦掉。鍵盤：方向鍵移動，Enter 打叉，D 放狗狗。</p>
+      <div class="sheet-acts"><button id="btn-howto-close" class="btn go" type="button">開始玩</button></div>
+    </div>
+  </div>
+
+  <div id="dlg-settings" class="overlay" hidden>
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="settings-h">
+      <h2 id="settings-h">設定</h2>
+      <label class="switch-row" for="sw-sound">
+        <span>音效<small>開始、點擊、答對答錯、過關的聲音</small></span>
+        <input id="sw-sound" class="switch" type="checkbox" role="switch" checked>
+      </label>
+      <div class="reset">
+        <button id="btn-reset" class="btn small danger" type="button">重置全部進度</button>
+        <div id="reset-confirm" class="reset-confirm" hidden>
+          <p>闖關紀錄與每日連續天數都會清掉，無法復原。</p>
+          <button id="btn-reset-yes" class="btn small danger solid" type="button">確定清除</button>
+          <button id="btn-reset-no" class="btn small" type="button">先不要</button>
+        </div>
+      </div>
+      <div class="sheet-acts"><button id="btn-settings-close" class="btn go" type="button">完成</button></div>
+    </div>
+  </div>
+
+  <div id="dlg-win" class="overlay" hidden>
+    <div id="confetti" class="confetti" aria-hidden="true"></div>
+    <div class="sheet win" role="dialog" aria-modal="true" aria-labelledby="win-h">
+      <div id="win-dogs" class="win-dogs" aria-hidden="true"></div>
+      <h2 id="win-h">汪！全員到齊</h2>
+      <p id="win-sub" class="win-sub"></p>
+      <dl class="stats">
+        <div><dt>時間</dt><dd id="win-time"></dd></div>
+        <div><dt>愛心</dt><dd id="win-hearts"></dd></div>
+        <div><dt>提示</dt><dd id="win-hints"></dd></div>
+      </dl>
+      <div class="sheet-acts col">
+        <button id="btn-win-next" class="btn go" type="button">下一關</button>
+        <button id="btn-win-copy" class="btn" type="button">複製成績</button>
+        <button id="btn-win-home" class="btn small" type="button">回首頁</button>
+      </div>
+      <div id="copy-fallback" class="copy-fallback" hidden>
+        <label for="copy-text">沒辦法自動複製，請長按或全選後自己複製：</label>
+        <textarea id="copy-text" rows="3" readonly></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div id="dlg-lose" class="overlay" hidden>
+    <div class="sheet lose" role="dialog" aria-modal="true" aria-labelledby="lose-h">
+      <div id="lose-dog" class="lose-dog" aria-hidden="true"></div>
+      <h2 id="lose-h">愛心用完了</h2>
+      <p>狗狗們躲得太好。盤面會重新整理，計時也從頭開始。</p>
+      <div class="sheet-acts col">
+        <button id="btn-lose-retry" class="btn go" type="button">再試一次</button>
+        <button id="btn-lose-back" class="btn small" type="button">離開</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+</div>
+
+<script>
+/* Doggydoku levels — GENERATED by tools/generate.mjs (seed 20261009). Do not edit by hand. */
+(function (root) {
+  root.DOGGY_LEVELS = { campaign: [
+{id:"c001",n:5,regions:"AAABBAABBBAABBCDDBBCDDDEC",solution:[0,2,4,1,3],difficulty:1},
+{id:"c002",n:5,regions:"AABBBAAABCADACCADDDCDDDDE",solution:[2,0,3,1,4],difficulty:1},
+{id:"c003",n:5,regions:"AAAAABCDDABDDDABBEDAEEEDD",solution:[4,1,3,0,2],difficulty:1},
+{id:"c004",n:5,regions:"AABBBACBDBADDDBAEDDEEEEEE",solution:[4,1,3,0,2],difficulty:1},
+{id:"c005",n:5,regions:"AABBBACDBBACEBBCCEEEEEEEE",solution:[0,2,4,1,3],difficulty:2},
+{id:"c006",n:5,regions:"AABCCADBBCADECCADECCAAECC",solution:[0,3,1,4,2],difficulty:2},
+{id:"c007",n:5,regions:"ABBBBAACCDEACCCEAECCEEEEE",solution:[2,4,1,3,0],difficulty:2},
+{id:"c008",n:5,regions:"AAABBCCABDCCEEDCEEDDCCCCD",solution:[1,3,0,2,4],difficulty:3},
+{id:"c009",n:6,regions:"AABBBBAACCBBAADCBBDDDDEBDDDDDBDDDFFB",solution:[5,2,0,4,1,3],difficulty:1},
+{id:"c010",n:6,regions:"AAABBACAAAAACCACADCCCCADCEEEFDCCEEDD",solution:[3,1,5,0,4,2],difficulty:1},
+{id:"c011",n:6,regions:"AABBCDABBADDAAAADDAADDDEAEEFFEAEEEEE",solution:[4,2,5,0,3,1],difficulty:1},
+{id:"c012",n:6,regions:"ABBAACAAAAACDDDAAADDDEAADEEEFFDDEEEF",solution:[1,5,3,0,4,2],difficulty:2},
+{id:"c013",n:6,regions:"AABBBCABBBBCAADBECAADCCCADDCCCFFDDCC",solution:[3,0,4,2,5,1],difficulty:2},
+{id:"c014",n:6,regions:"AAAAABAACABBACCCDDCCDCDECFDCDEFFDDDD",solution:[0,4,2,5,1,3],difficulty:2},
+{id:"c015",n:6,regions:"ABBBBCABBBCCADDCCCAEEECCEEEEFCEEEECC",solution:[3,5,2,0,4,1],difficulty:2},
+{id:"c016",n:6,regions:"ABBBCCABBBBCAAABBCAADBBEAADFDEDDDDDD",solution:[4,2,0,5,3,1],difficulty:3},
+{id:"c017",n:6,regions:"ABBBBBAAABBBAAAACDAACCCCAEEECFAEEEFF",solution:[2,0,5,3,1,4],difficulty:3},
+{id:"c018",n:6,regions:"AAAABBAABBBCAACDCCEECDCFECCCCFEEECCC",solution:[4,1,3,5,2,0],difficulty:3},
+{id:"c019",n:6,regions:"AAABBBAACBBDACCCBDAACCBBAEECFBAAFFFF",solution:[0,5,2,4,1,3],difficulty:3},
+{id:"c020",n:6,regions:"AAABBBCCBBBBCDDDBBCDEDDBCFEEDDFFEEDD",solution:[2,5,0,4,1,3],difficulty:4},
+{id:"c021",n:7,regions:"AAAABBBCCBBBBDECBDFBDCCGDFBDCCGDDDDCCCDDDDCCCDDDD",solution:[3,5,0,4,2,6,1],difficulty:1},
+{id:"c022",n:7,regions:"ABBBBBBABAACBDABAECBDAAACCBBAFFCCGGAAFGGGGAAAGGGG",solution:[1,6,3,0,4,2,5],difficulty:1},
+{id:"c023",n:7,regions:"AAAAAAAABBAAAACDBBBAACDEEEEACDDFFFGDDDDDFFDDDDDFF",solution:[4,2,0,3,6,1,5],difficulty:2},
+{id:"c024",n:7,regions:"AABBBCCDABBBBCDDBBBBEDDBFFBEDDBBFFFFFFFFFFFGGFFFF",solution:[5,1,3,6,0,4,2],difficulty:2},
+{id:"c025",n:7,regions:"AABBBCCAAABDCCABBBDDCABBBDDDABEBDDFABAADDFAAAGGFF",solution:[0,5,1,4,2,6,3],difficulty:2},
+{id:"c026",n:7,regions:"ABACCCCAAAADCCAAEADDDFAEFDDDFAAFDDDFAFFDGGFFFFFFF",solution:[1,5,0,2,4,6,3],difficulty:2},
+{id:"c027",n:7,regions:"AAAABBBAABBBCBDAAABCBDDDBBCCEEEEBBCEFGEBBCEGGGGCC",solution:[2,6,0,5,3,1,4],difficulty:3},
+{id:"c028",n:7,regions:"AAABCCDAABBECDAAADEDDFADDDDDFAADDDDFAAFDDGFFFFFDD",solution:[5,2,4,1,3,6,0],difficulty:3},
+{id:"c029",n:7,regions:"AAAAABBACAABBBACABBBBCCCDDDBCCEFDDBEEEFGDBEEEGGDD",solution:[2,6,1,5,3,0,4],difficulty:3},
+{id:"c030",n:7,regions:"AAAAAAABBCACADEBCCCCDEBCCCFDEECGGFFEECEGGFEEEEEEF",solution:[3,6,1,5,2,4,0],difficulty:3},
+{id:"c031",n:7,regions:"AAABBBBABBBBBBCCCDBBBCEDDBDDCEDDDDFCEEEEDFGEEEEDF",solution:[2,5,1,3,6,4,0],difficulty:4},
+{id:"c032",n:7,regions:"AABBCCDAABECCDABBEECDEEEEEDDEFFEDDDFFGEDDDFFGEEED",solution:[3,5,0,4,1,6,2],difficulty:4},
+{id:"c033",n:7,regions:"AAAAABBAAAABBBCCDABBBCEDDFBBCEDFFBFEEEFFFFGGGFFFF",solution:[4,6,0,3,1,5,2],difficulty:4},
+{id:"c034",n:7,regions:"AABCCCCAABBCDCAAABDDCEEAADDCEEEEEFFEEEGGFGEEEEGGG",solution:[5,2,0,4,6,3,1],difficulty:5},
+{id:"c035",n:8,regions:"AAAAABCCAAADBBBCDAADDECCDDDDEECCDDDDCCCCFDDGGGCCFFFCCCCCFFFCHCCC",solution:[2,6,0,5,7,3,1,4],difficulty:2},
+{id:"c036",n:8,regions:"AABBBBCCABBBDBBCAABDDDCCAAAAAAACAEEEFAACAEEEFAACEEEEGGCCEEHHGGGC",solution:[0,6,3,7,4,1,5,2],difficulty:2},
+{id:"c037",n:8,regions:"AAABBCCCAAAABBCCAAAAACCCDDAAACCCDDDAACECFFDDAAECGGGDAAECGGGHHEEC",solution:[7,5,3,1,6,0,2,4],difficulty:2},
+{id:"c038",n:8,regions:"ABBBCCCCAAAAACDCAAAACCDCAAAADDDDAAAEEDFDAAGGDDFFAAGGFDDFAAAHFFFF",solution:[1,5,0,6,4,2,7,3],difficulty:3},
+{id:"c039",n:8,regions:"AABBBCCCAADDBCCCAAADECCCAAEEECFFAEEEEFFGAAEGEEGGAAEGGGGGGGGGGHHH",solution:[4,2,5,7,1,3,0,6],difficulty:3},
+{id:"c040",n:8,regions:"AABBCCCCBBBBBBBCDDBBEBCCDDDEECCCDDEEEECCFFGGEECHEFFEEEEHEEEEEEEH",solution:[0,4,6,2,5,3,1,7],difficulty:3},
+{id:"c041",n:8,regions:"ABBCCCCDAABBEECDAAABBBDDFFAABBDDFAAAGBGGFGGAGGGGGGGAGGGGHHGGGGGG",solution:[3,5,7,4,2,0,6,1],difficulty:3},
+{id:"c042",n:8,regions:"AABCCCCCDABCCCCCDBBCBCCCDDBBBECCDDDDDECFDDGGGEEFGGGGGGFFGHGGFFFF",solution:[0,6,2,5,3,7,4,1],difficulty:3},
+{id:"c043",n:8,regions:"AAAAABBBAAAAAAABAACCCCBBDDDDCCCBDDDDEFFBDDDDEEEBGDDDEEBBGDDDDHHH",solution:[2,7,3,1,6,4,0,5],difficulty:4},
+{id:"c044",n:8,regions:"ABBBBCCDABBEECCDAAAECCCDAEEECFFFAGAACFFFAAACCFFFAHHCFFFFHHHFFFFF",solution:[4,7,5,3,1,6,0,2],difficulty:4},
+{id:"c045",n:8,regions:"AABBBBBBABBBBBBBAABAAABCDAAACCCCDDEEFFFFEEEEEFGGEHEEEFGEEHHEEEEE",solution:[1,4,7,0,5,3,6,2],difficulty:4},
+{id:"c046",n:8,regions:"AABBCCDDBABBBCEDBBBCCCEDBCCCCCEEFGGCHCCCFFGCHHCHFGGGGHHHFFFGGGGH",solution:[1,7,2,6,3,5,0,4],difficulty:4},
+{id:"c047",n:8,regions:"AAABCCCDAAEBCCCDAAEBBBDDAFBBGGGDFFGGGGDDFGGGGGDDFGGGGGDDGGGGGHDD",solution:[6,2,0,3,1,4,7,5],difficulty:5},
+{id:"c048",n:8,regions:"AAAAAAAABBCCDAAAEEECDDAAEEECCAAAEECCFAFFEEEEFFFGHHEEEEGGEEEEEEEG",solution:[4,1,5,3,6,2,0,7],difficulty:5},
+{id:"c049",n:9,regions:"AAAAAABBBACCDAAAEEAACDDDDDDADDFFDGGDADDFFDDGDAADDDDHGDAADAIHHHDAAAAIIIHIAAAIIIIII",solution:[6,8,2,4,1,7,5,0,3],difficulty:2},
+{id:"c050",n:9,regions:"AAAAAAAABACADDAAABECADDDAABEFFFDDDABEEGHHAAABGEGHHBBBBGEGGGBBGBGGGGGIGGBGGGGGGGGG",solution:[6,1,4,2,0,3,8,5,7],difficulty:2},
+{id:"c051",n:9,regions:"ABBCCCDDDABBBCEECCABCCCCCCCAAAACCCCCAAAFCCGCCAAAFFFGCHAAFFGGGIHAFFGGGIIIFFFGGIIII",solution:[7,5,1,4,0,8,2,6,3],difficulty:3},
+{id:"c052",n:9,regions:"AAAAABBCCADDDDDBBCAADEEDDCCADDEEDDFCAEEEDDDFCEEEEEDGFGEEEEEEGFGHEEIIEGFGHEEEEEGGG",solution:[5,8,1,7,4,2,6,3,0],difficulty:3},
+{id:"c053",n:9,regions:"AAAAAAABBAAACCACBBADAACCCCBDDDACCBBBEEEBBBBBBEFFBGGBBBHHFBIGGGBHBBBIGGGBHHHHGGGBB",solution:[6,8,1,5,0,2,4,7,3],difficulty:3},
+{id:"c054",n:9,regions:"AAAAABCCCADAAABBBCADDAEEEECDDDAAAECCDDDDAAFCCDDGGDAFFCDDDDDAAAHIIDAAAAHHIDDDDDAHH",solution:[5,2,4,8,6,3,1,7,0],difficulty:4},
+{id:"c055",n:9,regions:"ABBBCCDDDAEEBCCCCFACEBCCCFFACCCCFCFFACACCFFFFAAAAAFFFFAAGAAAFHFIIGGAHHHFIAAAAAFFF",solution:[7,1,3,6,8,4,2,5,0],difficulty:4},
+{id:"c056",n:9,regions:"AABBBBBCCABBDBBBBEBBDDDDEEEBBDFFDEGGBDDDFFHGHBBDDFFHHHIDDFFFFHHIIDDDHHHHIIIIIIIHH",solution:[8,0,6,1,7,4,2,5,3],difficulty:4},
+{id:"c057",n:9,regions:"AAABAACDDAAAAACCDDAAAEAEFDDAEEEAEFFFEEEEEEFFFGGGEHEFFFGGGHHIIFFGGGHHHHFHGGGGGGHHH",solution:[3,5,7,0,2,8,6,4,1],difficulty:4},
+{id:"c058",n:9,regions:"AAAABBCCCDAAAABBBCDDDAABBEEDDDAAAAEEDFDDAGGAEDFFDAGAAEHFAAAAAIIHFAFFFIIIFFFFFFFII",solution:[4,8,3,7,2,5,0,6,1],difficulty:5},
+{id:"c059",n:9,regions:"AABBBCCBBAAABBBBBBAAABBBBBBAADDDDBEBAADFFFGEBAADAAGGEBAAAAEEEEEHAEEEIEEEHIIIIIEEE",solution:[5,1,7,2,4,6,8,0,3],difficulty:5},
+{id:"c060",n:9,regions:"AAAAAABBCADDDDBBCCADDEEBBFCADDEEEBFFAGGGGHBBFAHHHGHHHFAAHHHHHHHIAAAHHHHHIAAAHHHHH",solution:[8,2,7,3,6,4,1,5,0],difficulty:5}
+], daily: [
+{id:"d001",n:9,regions:"AAAAAAAAAABBAAAACCABBAADAACEEDDDDACCFFDDDAACCGFDDDHAIIGFFDDHAAIFFFFDHFAAFFFFFFFAA",solution:[6,2,8,1,4,7,0,5,3],difficulty:2},
+{id:"d002",n:8,regions:"AAABBBCCAAABABCADDAAABAADDDAAAAADDDAEFFADDDDGGFFHHHDGFFFHHHDGGGF",solution:[3,6,2,0,4,7,1,5],difficulty:4},
+{id:"d003",n:8,regions:"AAAAAAABAAACAADBAABBBADBEEFBBADBGGFBBBBBGGFHHHHBGFFFFFHBFFFFFFBB",solution:[5,3,6,1,7,4,0,2],difficulty:3},
+{id:"d004",n:8,regions:"AAAAAABCBABDDABCBABBBBBCBBBBBECCEEBBFECCEEBEFEGGEBBEEEEGEEEEEHEE",solution:[1,3,7,2,4,6,0,5],difficulty:4},
+{id:"d005",n:8,regions:"AAAAAABBACAAAAABACCAABBBDCDDDDDDDEDFDDGGDDDFDHHGFDDFFFFGFFFFFFFF",solution:[6,0,2,4,1,5,7,3],difficulty:2},
+{id:"d006",n:9,regions:"ABBBBBCCDAEBBBFDDDAEBFFFDDDABBBFFFDDBBGBFHHHIBBGBFFHIIGGGBBIHIIGGIIIIIIIGGGGIIIII",solution:[7,1,8,0,4,6,3,5,2],difficulty:3},
+{id:"d007",n:8,regions:"AAABBBBBACAADDDBACEEBDDBCCEEBBBBCCEEBBEBCFEEEEEEFFEGEHEEFEEHHHHE",solution:[2,4,7,0,6,1,3,5],difficulty:2},
+{id:"d008",n:9,regions:"ABCCCCCCDABBBCCDDDABECCCDDDAFFCDDDDDAFFDDDDDDAFFFDDDDGAFHHHHIGGFFHHIIIGIFFFFIIIII",solution:[1,5,2,7,0,8,4,6,3],difficulty:4},
+{id:"d009",n:8,regions:"AABBCCCCDAABBCCCAAABBCEEAABFBCCEAGBFBEEEAGBBBBEEAGBHHBBBAGGBBBBB",solution:[5,0,2,7,3,1,4,6],difficulty:3},
+{id:"d010",n:9,regions:"AAABBBBCCAAAAAABBBAAAAAABBBAAAADAEBBFFAADDEBEAAAADDEEEGHIIIDDDEGHIIGGDEEGGGGGDDDE",solution:[7,2,8,6,0,5,3,1,4],difficulty:3},
+{id:"d011",n:8,regions:"AAABBBCCABBBBCCCAADDECCCFDDEECCCFDDDDDCCDDGDGDGCDGGGGGGCHHHHGGGC",solution:[5,7,1,4,0,3,6,2],difficulty:3},
+{id:"d012",n:9,regions:"AABCCCCCCACCCCCDCCACCCDDDDDACCDDDDDDAECDCDDDDAECCCCDDFAAAGCFFFFAGGGCHHIFAGCCCCHIF",solution:[2,4,0,6,1,8,3,5,7],difficulty:3},
+{id:"d013",n:9,regions:"AAABCDDDDAAABCCDDCAEABBCCCCAEFFBBGGCEEFFBHGHCEFFFFHGHHFFFHHHGHHHFHHHHIHHHHHHHHHHH",solution:[8,1,5,7,4,0,2,6,3],difficulty:2},
+{id:"d014",n:8,regions:"AABBBCCCDAAABBCCDDDABCCCDDAABCCCDDAABEEEDDEEEEFFDDEGHHHFDDGGHFFF",solution:[3,1,6,0,5,7,4,2],difficulty:3},
+{id:"d015",n:7,regions:"AAABBBBCAABBBBCCCBDBBCCEFDDBEEEFFDBEEEGDDDEGGGDDD",solution:[1,5,0,2,4,6,3],difficulty:4},
+{id:"d016",n:7,regions:"AAABBBCDDABBECDBBBFEEDDDBFFEGDDDFFEGDDFFFFGGGGGFF",solution:[6,2,5,3,1,4,0],difficulty:3},
+{id:"d017",n:8,regions:"AAABBBBCAAADDBECAADDABECAAAAAACCAAAFFAACAAGGGCCCGGGGGCCCGGHHGCCC",solution:[5,3,6,1,4,7,0,2],difficulty:5},
+{id:"d018",n:8,regions:"ABCCCCCAABCAACAAAAAAAAAADEEEEAAADDEFEAAAEEEEEEAAEEGEHEEEEGGGHHEE",solution:[6,1,7,0,3,5,2,4],difficulty:2},
+{id:"d019",n:8,regions:"AAAABBBCDAAAABBBDDAAABBBEDABBBFFEAAABGGHEAAGGGGHEAAHHHGHEAAHHHHH",solution:[7,5,1,6,2,4,0,3],difficulty:3},
+{id:"d020",n:8,regions:"AAABCCCCDBEBCCCCDBBBBBCCDDBFFFCCDGGDFFCCDDGDDFFFDDDDFFHHDDDDDDDD",solution:[0,2,4,6,1,5,7,3],difficulty:2},
+{id:"d021",n:9,regions:"AAABBCCCDAAABCCCCCEAAFFCCCCEGAAFCHCCEGGAACHCCEGGHHHHHCEEHHHHIIIEEIIIHHIIIIIIIIIII",solution:[8,3,1,4,7,2,5,0,6],difficulty:3},
+{id:"d022",n:9,regions:"AABBBCCCDAAACCCCDDEAFFDCCCDEAFFDDCCDAAAAGDDDDAHHAGGDDDAHHHIDDDDAAHIIDDDDHHHHHHHHD",solution:[2,6,0,3,1,5,8,4,7],difficulty:4},
+{id:"d023",n:9,regions:"AAAABCCCCADDABBBCCADAAAABCCADDAEABCCAFFEEEBBBAFEEEEEEBAAGGHHEEEAAGGGIIEEAAGGGGGEE",solution:[0,5,1,8,2,7,4,6,3],difficulty:4},
+{id:"d024",n:8,regions:"AAAAAAAAAAAAAAABAAAACCABDDDDCCAAEDDDEEAAEEEEEFGGEEEGGGGGEEEEGHHH",solution:[1,7,4,2,0,5,3,6],difficulty:2},
+{id:"d025",n:7,regions:"AAABBBBAAABBBBCCAABBBAAADEBBADDDEEBFDDDDEEFFFDDEG",solution:[2,4,1,3,5,0,6],difficulty:3},
+{id:"d026",n:8,regions:"AABBBBBBAABCBBCBACCCBBCBADDCCCCCDDCCCEFFDDCCCEEGDHHCCEGGDHCCCEGG",solution:[4,0,3,1,7,5,2,6],difficulty:4},
+{id:"d027",n:8,regions:"AAAABBBBAAABBABCADABAAACEDAAACCCEEAAACCCEAAFGGGCHAAFGGGCHHHFGGGG",solution:[5,7,1,4,0,3,6,2],difficulty:3},
+{id:"d028",n:7,regions:"AAABBBCDABBCCCEBBBBBCEEBBECCEEEEEFFEEGGGFFEEEEEEF",solution:[2,0,3,5,1,4,6],difficulty:3},
+{id:"d029",n:8,regions:"AAABBBBBACBBBBBBACCBDBBBCCCDDDDBCCDDDEEBCCCDFFBBCGDDFFBHCGGDFFBH",solution:[0,5,1,3,6,4,7,2],difficulty:4},
+{id:"d030",n:7,regions:"AAAAAAAABAAAAACCCADAACCCDDDDCEFFFDFCEGGFFFEEEGFFF",solution:[5,1,4,2,6,3,0],difficulty:2},
+{id:"d031",n:7,regions:"AAABBCCADACCCCADEFFCCDDEEFFFDEEEFFFEEEEEGFEEEEEGF",solution:[3,0,6,1,4,2,5],difficulty:3},
+{id:"d032",n:7,regions:"ABCCCCCABBBCCCABBBBCDAAABBDDAAAEDDDFAAEEGGFAAAAAG",solution:[4,2,6,1,3,5,0],difficulty:4},
+{id:"d033",n:8,regions:"ABBBBBBCAAAADDBBAEEFBBBFEEEFFFBFGEEEFBBFGGGEFFFFGHGGGGGFHHHHGGGG",solution:[7,4,0,6,2,5,3,1],difficulty:4},
+{id:"d034",n:8,regions:"ABBBCDDDEEBBCCCDEEECCCCDCCECCCDDCCCCCCDFCGGCHHFFCCGFFFFFGGGFFFFF",solution:[0,3,5,2,6,4,7,1],difficulty:4},
+{id:"d035",n:9,regions:"ABCCCCCCCABACCCCCDAAACEECCCAAAEEEEEEFFFEEEGGGFFHHHEEGGFFHHHEEGIFFFHHGGGIFFFHHGGII",solution:[1,8,6,2,4,0,3,5,7],difficulty:3},
+{id:"d036",n:9,regions:"AAAABCCCCDDADBBBEEDDDDDBEEEDFFFDBEEEDDDDDGEEHHHHDGGGGHIIHDHGGHHIHHHHHHHHHHHHHHHHH",solution:[8,2,5,1,7,3,6,0,4],difficulty:3},
+{id:"d037",n:8,regions:"AABCCCCCABBCCDDDAACCCCCDAAECCCDDAAEECDDDAAFFGDDDAAAAGHHHAAGGGHHH",solution:[5,1,7,2,0,3,6,4],difficulty:3},
+{id:"d038",n:9,regions:"ABBCCCCCCABCCDCCCCABBCDCCCEAABCDDDCEABBBBDDEEBBFBGDDEEBHHHGGDDDHHIHHGGDDHIIHGGGGD",solution:[7,0,8,6,4,2,5,3,1],difficulty:2},
+{id:"d039",n:8,regions:"AAAAABBBCCAADDDBCAAADDDDCAEADDFFCCEEEDDFCEEEDDDGCEEEDDDGCEHHHDDD",solution:[5,2,4,6,0,7,1,3],difficulty:3},
+{id:"d040",n:8,regions:"AABBBBBBAAAABBBCAAAABDBCEAAABDDCEAABBBCCEFABBBCCEFGGCCCCEGGGGHHC",solution:[4,2,5,0,7,1,3,6],difficulty:2},
+{id:"d041",n:8,regions:"ABBCCCCDABBDCDDDEBBDCDDFEEBDDDDFEEEDDFFFEDDDDDDFEEDDDDGFEEEEHHGG",solution:[5,0,2,7,1,3,6,4],difficulty:3},
+{id:"d042",n:8,regions:"AAABBBBCABABBBCCDBABBBBCDBBBBEFFGGBBBFFFGBBBGFFGGGHHGGFGGGGGGGGG",solution:[1,7,0,5,3,6,2,4],difficulty:4},
+{id:"d043",n:8,regions:"AABBCCCDAEEECCCDAECCCDCDAEEDDDCDAAEFFDDDGAFFFDHDGFFFDDHHGHHHHHHH",solution:[3,5,7,2,4,1,6,0],difficulty:3},
+{id:"d044",n:9,regions:"ABBBBBCCCBBDDDBCCEDDDDBBCCEDDDBBBBCEFBBBGBEEEFFGGGGEEEFFHHIEEEEFFHFIEEEEFFFFEEEEE",solution:[0,7,3,6,8,5,2,4,1],difficulty:2},
+{id:"d045",n:8,regions:"ABBBBBBCABCBCDDCABCCCCCCABCCCCCCEEEEECFCGGGGEEGCGGGGGGGCGGHHHGGG",solution:[2,5,7,0,6,4,1,3],difficulty:3},
+{id:"d046",n:8,regions:"AAAABBBBAAACCCCBCCCCCDDBECCCCDDDEECCCCDDEFCCGGGDEFCCCGDDHHHCGGGD",solution:[3,7,4,0,6,1,5,2],difficulty:2},
+{id:"d047",n:8,regions:"AAAABBBBAACCCBDBACCEDDDBCCCEDBBBCCDDDDBFCCFDDFFFGFFFFFFFGFFFFHFF",solution:[2,7,3,1,4,6,0,5],difficulty:3},
+{id:"d048",n:8,regions:"AAAAABBCAAAACCBCDDAAECCCFGGEEEECFFHHEEECFFFHEECCEEEHECCEEEEEEEEE",solution:[4,6,0,2,7,1,3,5],difficulty:3},
+{id:"d049",n:8,regions:"AAAABBCCAAABBCCCADAAECFFADAAEEGFDDEEEHGFDEEEEHFFDDEEEHHFDDDEHHFF",solution:[0,3,5,1,6,2,7,4],difficulty:2},
+{id:"d050",n:8,regions:"AAAABBBBAAABBBBBACCDDDEEACFFDDDFAAAFDFFFAAAFDFFGAFFFFFFGAHHFFFFF",solution:[0,3,6,1,4,7,5,2],difficulty:3},
+{id:"d051",n:8,regions:"AABBBCCCDABEBCCCDDEEBCCCDDDDBCCCDFDDBBBCDDDDDDCCDDDDGGGGDHHDDDGG",solution:[0,3,6,4,1,5,7,2],difficulty:3},
+{id:"d052",n:7,regions:"ABBBBCCAADCBBCADDCCCCAADDDDCAEEEECCFFEGECCFFEGEEC",solution:[0,5,2,6,4,1,3],difficulty:4},
+{id:"d053",n:9,regions:"AAAAAABBBAAAAAABCBAAAAAACCDAAAAEADDDAEEEEAADDAEEEFFFDDEEGGHHFFDEGGIIHIFIEIIIIIIII",solution:[7,0,6,8,1,4,2,5,3],difficulty:5},
+{id:"d054",n:8,regions:"ABBCCCCCADDDCEECAACCCECCFAEEEECGFAAAEEEGAAAAGGEGHHHHGGEGHHHHHGGG",solution:[1,3,6,0,5,2,7,4],difficulty:3},
+{id:"d055",n:7,regions:"AAABBCCABBBBCCAABCCCCDDCCCCCEDFFFCCEDFFGGCGGGGGGC",solution:[2,4,6,1,3,0,5],difficulty:2},
+{id:"d056",n:7,regions:"AAAAAABACCBBBBACDDBEEAADDFEEAADDFGGAGGGGGGAAGGGGG",solution:[6,1,5,2,4,0,3],difficulty:4},
+{id:"d057",n:8,regions:"AAAAABBBAAAABBBBCCAAAABBCAADAAABCCCDAAEEFGGDAGEEFGGGHGGEFFFGGGGE",solution:[2,5,1,3,7,0,4,6],difficulty:4},
+{id:"d058",n:9,regions:"AAAAAAAAAAABBAAAAACBBBAAAAACCBBBAADDBBBBEEDDFGGBBFFFFFGBBBBFFFFGBHBBFIFFBBHBFFFFF",solution:[5,3,0,7,4,1,8,6,2],difficulty:2},
+{id:"d059",n:9,regions:"AAAAAAABBCCCCAAAADEECCADDADEEECCCDDDFEFCGGFFDFEFGGGFFHFEFIIIIFHFEFFIFFFFFFFFFFFFF",solution:[7,5,2,6,1,3,8,4,0],difficulty:5},
+{id:"d060",n:9,regions:"AAAAAAABBAACACCABBAACCCCCDEFFGGCCCDEHHGCCCCDEHHGHHCEEEHGGHHCCCEHHHHCCCCCHHHHIIIIC",solution:[8,3,7,1,4,6,2,0,5],difficulty:3},
+{id:"d061",n:8,regions:"AAAABBBCDDAABCCCAAABBBEEAAAAFFFEEEAAEEEEEEEEEEEEGEGEEEEEGGGGGGHE",solution:[7,1,3,5,2,4,0,6],difficulty:3},
+{id:"d062",n:8,regions:"ABBBBCCCAAADBBCCADDDDBBCAADDDEBBDADDEEBBDDDDFFBBDDFFFBBGDDDHHBBG",solution:[1,6,0,5,2,4,7,3],difficulty:3},
+{id:"d063",n:7,regions:"AAABBBBAAAACCCADDAAECAADDDECFAADEEEFAAAEGEFFFFEGE",solution:[3,1,6,2,4,0,5],difficulty:3},
+{id:"d064",n:8,regions:"AAABBBBBACBBBDDBACBCBBBBACCCCCEBACCFCCEEAAFFCGEEFFFGGGEEFFFFHHEE",solution:[3,6,0,2,7,5,1,4],difficulty:3},
+{id:"d065",n:7,regions:"AABBBBBCDDDBEBCDFFFBBCCCFFBBCCCFFBBCCCCFFFCCCCGGF",solution:[0,5,1,3,6,2,4],difficulty:2},
+{id:"d066",n:8,regions:"AAAAABBBCCAAABBBCBBBBBBDCBBEFBDDCBBEFBDDGBBBFBBDHHHFFFDDHHHHDDDD",solution:[4,1,6,3,7,0,5,2],difficulty:2},
+{id:"d067",n:8,regions:"AAABCCCCAABBBBBCBBBDCCCCBBBDCEECBFFECECCFFFECEEEFFEEEGEEHHEEEEEE",solution:[2,4,6,3,1,7,5,0],difficulty:5},
+{id:"d068",n:8,regions:"AABBBBBCAAABBBCCAAAABBBDAEABBBFDAEEBBBFDEEGHFFFFEEHHFFFFEEEHFFFF",solution:[0,6,4,1,7,2,5,3],difficulty:2},
+{id:"d069",n:8,regions:"AAAAAAAAAAAAAAABAAAACCCBADEEFCFBGDDDFFFBGGFFHHFFGGFFHFFFFFFFFFFF",solution:[2,7,5,3,1,4,0,6],difficulty:3},
+{id:"d070",n:8,regions:"AABBBBBCADDABBBCAAAAEBEEAAAEEEEEAAAFEEEGHHAFFGGGAHAAFFFFAAAAFFFF",solution:[7,2,5,3,0,6,1,4],difficulty:2},
+{id:"d071",n:9,regions:"AAAABBCDDABBABBCDDBBBBBBBDDBEEBBEBBDBEEEEEEDDEEEDDDDDFEEGDDFFFFHHGDDDDIFHHDDDIIIF",solution:[6,3,7,4,1,8,2,0,5],difficulty:4},
+{id:"d072",n:7,regions:"AABBCCCAAABBDDABBBBBDAAAAEEEAFFFEGGAFFGGGFFFFFFFF",solution:[4,6,2,5,0,3,1],difficulty:4},
+{id:"d073",n:7,regions:"ABBBBCCABADBCCAAADBBCAAAACCCAEFFCCGEEEECCGEEEECGG",solution:[4,0,3,5,2,6,1],difficulty:4},
+{id:"d074",n:9,regions:"ABBCDDDEEAABCDEEEEFBBDDDDEEFBBBBDEEGBBBDBDGGGBDDDBDGGGBDDDDDGDGBBDDHDDDGBDDHHIIGG",solution:[3,1,7,0,2,5,8,4,6],difficulty:2},
+{id:"d075",n:8,regions:"ABBCDDEEABBCDFFEAACCDEEEAAACCEEEAGAGCCCCAGAGCGCCGGGGGGGCGHGGGGCC",solution:[2,6,4,7,5,0,3,1],difficulty:2},
+{id:"d076",n:8,regions:"AAAABAAAAACAAAAADDCCCCAADEEEFFGAEEEFFFGGEEEEFFHHEEEEEFHHEEEEFFFF",solution:[4,1,3,0,6,2,7,5],difficulty:5},
+{id:"d077",n:8,regions:"AAAAABBBAAAAABCCAAAABBBBAADDBEEEAFDDBEGGFFFDHGGGFDDDGGGGFGGGGGGG",solution:[5,7,1,6,2,4,0,3],difficulty:3},
+{id:"d078",n:8,regions:"AAAAABBAAAAAAAAAACACAAAACCCCCCDDCEECFFDDCCEEDDDGCCCCCCDGCHHHCCDG",solution:[5,0,3,6,4,2,7,1],difficulty:2},
+{id:"d079",n:7,regions:"AABBBBBBBBBCBCDDBECCCDDDEECCDEEECCCDDEFCGGDDECCGG",solution:[1,6,2,4,0,3,5],difficulty:3},
+{id:"d080",n:7,regions:"AAAAAAAAAAAABBACCADDDACEEEFDGEEEFFDEEEEEDDEEEDDDD",solution:[3,6,1,5,0,2,4],difficulty:3},
+{id:"d081",n:9,regions:"ABBBBBCCDAAAAABBCDAEAABBFFDAEEBBBFFFAEEEBGGGGAHEBBBGEEAIEEEEEEEAIEIEEIEIIIIIIIIII",solution:[6,8,4,7,5,1,3,0,2],difficulty:3},
+{id:"d082",n:8,regions:"AAAAAAAABCCADDEEBFFGDEEEFFFGDEEEFGGGGGEEFFGGHHEEFGGGGGGEFFGGEEEE",solution:[6,2,0,4,7,5,3,1],difficulty:2},
+{id:"d083",n:8,regions:"AAABCCCCDBBBBBCCDDDDDBBCDDEEECCCEEEFFEECGHEFFECCGEEEFEECGEEEEEEE",solution:[2,5,3,7,4,1,6,0],difficulty:2},
+{id:"d084",n:8,regions:"AAABBBBBACABBDBBACAEDDBBACAEEEEFACGGGEEEACCGGGGGHHCCCGGGCCCCGGGG",solution:[1,6,4,7,5,3,0,2],difficulty:4},
+{id:"d085",n:9,regions:"AAAAAABBBACAABBBBBACAAABBBDACAAAABDDCCEEAAAAACEEFFAGAACEFFGGGGACEHHGGIGGCCHHGGIGG",solution:[0,5,1,8,2,4,7,3,6],difficulty:5},
+{id:"d086",n:7,regions:"AAABBBBAACBBBBACCBBDBAACCCDBEECCDDBEEFCGDBECCCGBB",solution:[6,1,5,3,0,2,4],difficulty:2},
+{id:"d087",n:9,regions:"AAAAAABBBAAAAAAABBAAAAAABBCDAEAEFFFCDAEEEEGGCEEEGGGGCCEGGGGGCCCEGGHHGGICGGHHGGGGC",solution:[6,1,8,5,0,2,4,7,3],difficulty:2},
+{id:"d088",n:8,regions:"AAABBBBBABBBBBBBAABBBCCBABBDBBCCAEFDBBGCEEFDGGGGEEEEEHHGEEEHHHHH",solution:[1,7,5,3,6,2,0,4],difficulty:4},
+{id:"d089",n:8,regions:"AAAAAAAABAAAAAAABCAAAADECCAFFDDECCCDFDGGCDCDDDDGCDDDGDDGCDHGGGGG",solution:[5,0,7,3,1,6,4,2],difficulty:2},
+{id:"d090",n:8,regions:"ABBBBCCCAAAABBBBDDEBBBBFGDEEEEBFGGGEEEEFGGGGEEHHGGGGGEHHGGGGGEEH",solution:[5,0,3,1,7,4,6,2],difficulty:2},
+{id:"d091",n:8,regions:"AAAABBCCDDABBBCCDAAABBECDFFFBEEBDBBBBBBBDBGGGGGBHHHHGHGGHHHHHHHG",solution:[7,2,6,3,5,0,4,1],difficulty:2},
+{id:"d092",n:8,regions:"AAAAAAABAACCAAABAAACCBBBADACCCBEDDDDCFFFDDFDFFFFGDFFFFFFGGGFFHHF",solution:[1,3,5,7,2,4,0,6],difficulty:3},
+{id:"d093",n:8,regions:"AABBAACCAAAAACCCADDEAFCCAADDGFCCDDDGGCCCDGGGHHCCDDGGGHHCDDGGHHHC",solution:[2,0,3,5,1,7,4,6],difficulty:2},
+{id:"d094",n:9,regions:"AAABAAAACDAAAAAACCDDAAEAAFCDDDDEAGFCDDHEEGGFCDDHEEFFFFDDHHEIIFEDDDDEEEEEDDEEEEEEE",solution:[3,1,8,6,2,7,5,0,4],difficulty:4},
+{id:"d095",n:7,regions:"AABBBBBACCCCBBACAAABBAAADEFBGADDDFFGAADDDDGGGDDDD",solution:[5,2,0,4,6,3,1],difficulty:3},
+{id:"d096",n:9,regions:"AAAAABBBBAAAACDBBBAAAACDBBEFFACCBBBEFGGGGBBBEGGGGGGHBEGGGHGGHIEGGGHHHHHEGGHHHHHHE",solution:[6,1,5,3,0,2,7,4,8],difficulty:3},
+{id:"d097",n:9,regions:"ABBBBBBBBAAABBCBDBAEACCCBDBEEECCBBBBEEEECCFBBGEEEEFFFBGGGFFFFFBGHHHFFIBBGGHFFBBBB",solution:[0,7,4,8,3,5,1,6,2],difficulty:4},
+{id:"d098",n:7,regions:"ABBAAACAAAAACCAADAACCEEDAACCEEFFFFCFFFGFCCFFFGCCC",solution:[1,4,2,0,5,3,6],difficulty:2},
+{id:"d099",n:8,regions:"AAABBCCCABABBCCCABBBBBCCABDDBBECFGDDHBCCFGGGHBGCFGGGGGGCFFFFGGCC",solution:[1,7,3,6,2,4,0,5],difficulty:2},
+{id:"d100",n:9,regions:"AABBBCCDDAABBCCCCCAAAEECCFFCAACCCCCFCCCCCCCCFCCGCCFFFFCGGGFFFFHCGIIIIFFHGGIIIIIFF",solution:[7,2,4,1,3,6,8,5,0],difficulty:3},
+{id:"d101",n:8,regions:"AAAAABBBAAACAABBDDACABBEDDDCABEEFFCCCBBBFCCCCCBBFCCCCGBBHHCCCGGG",solution:[6,4,7,2,0,3,5,1],difficulty:4},
+{id:"d102",n:7,regions:"AAABBCDEAAABCCEACAACCEACCCCCEECCCCFGGGCCFFGGGGGGG",solution:[6,4,1,3,0,5,2],difficulty:3},
+{id:"d103",n:8,regions:"AABBBBBBABBBBBCBAADBBBCCEFDBDBDFEFDDDDDFEFDFFGGFFFFFHHHFFFFFFFFF",solution:[1,5,7,0,3,6,4,2],difficulty:3},
+{id:"d104",n:9,regions:"ABBCCCCCCBBCCDCCECBBCCDDCEEFBBCCDCDEFFBBBDDDEFFBBBGGGEFFFBHGGGEIFFHHGGGGIIHHHHGGG",solution:[0,6,8,5,3,7,2,4,1],difficulty:3},
+{id:"d105",n:8,regions:"AABCCDDDAABCCCCCAAAAEEECAFFFECCCAAAFFCGCHHHHFGGCHHHHHHGGHHHHHHGG",solution:[5,2,4,0,3,7,1,6],difficulty:4},
+{id:"d106",n:9,regions:"AAAABBCCCAAAAADDCCEAAAAAACCEAAAAAACCEEAAAAAACEEFAAGGGGEFFHGGGGGFFIHHGGGGFFIHGGGGG",solution:[4,6,8,5,1,7,3,0,2],difficulty:3},
+{id:"d107",n:7,regions:"AAAAABBAAAAABBAAAACCDAEECCCDEEECCDDEEFCDDGEEFFGGG",solution:[5,1,6,3,0,2,4],difficulty:4},
+{id:"d108",n:8,regions:"AAAABBBBCADAABBBCCDDABBBCCDDBBBBECDBBBBBEEDDDFFBGGGGGFGGGHHHGGGG",solution:[6,4,1,3,0,5,7,2],difficulty:2},
+{id:"d109",n:7,regions:"AAABBBBABBBBCBAACCCCBCCCCCDBECFCFDDGGFFFFDGGFDDDD",solution:[2,6,3,5,0,4,1],difficulty:2},
+{id:"d110",n:9,regions:"AAAAABCCCAAADDBBCCAAADDDDCEAADDDDDCEADDFDDDCCAAAGDDDDCAAGGHHDDHAAAGIHHHHAIIIIHHHH",solution:[5,7,4,8,3,0,2,6,1],difficulty:3},
+{id:"d111",n:7,regions:"ABCCCCCABBDCECADDDCEEDDDDCEEDDFGCEEGGFGGGEGGGGGEE",solution:[1,6,0,3,5,2,4],difficulty:3},
+{id:"d112",n:8,regions:"ABBBCCCCAACCCCDDACCCDCDDDDCDDDDEDDDDEDDEDFGDEEEEFFDDHHHEFFFDDHHE",solution:[3,5,0,4,7,2,6,1],difficulty:4},
+{id:"d113",n:8,regions:"AAABBBCCADDBCCCEADDCCCCEDDFFCCCCFFFFFCCCFFFFCCCCFGGFFCHHFGGFCCCH",solution:[4,0,7,1,5,3,6,2],difficulty:4},
+{id:"d114",n:9,regions:"AAABBCCDDEBBBCCCCDEEBECFCCGEEEECFFCGEEEECFGGGEHEECFIIGHHHHCIIIICHHCCCCCCCCCCCCCCC",solution:[0,8,2,5,7,3,6,1,4],difficulty:3},
+{id:"d115",n:8,regions:"AAAABCCDEAAAACDDEFAAACDGEFHACCCGEFHHHGGGEFFHGGGGHHHHHHHGHHHHHGGG",solution:[4,6,3,5,0,2,7,1],difficulty:4},
+{id:"d116",n:8,regions:"ABBBBCCCABBBBDDCEBEBFDDGEEEFFDDGEEEEFFGGEEEFFFFFEHHFFFFFEEHHHFFF",solution:[6,0,3,5,7,1,4,2],difficulty:4},
+{id:"d117",n:7,regions:"AAABCCDABBBBDDEEBFFDDEBBBFFFEBBBGGFEEBGGGGGGGGGGG",solution:[4,0,5,2,6,1,3],difficulty:2},
+{id:"d118",n:7,regions:"ABBCCCCAABCCDCACCCCDCAAAAEDCAAFAADDAAFADDDFFFGGDD",solution:[1,6,0,4,2,5,3],difficulty:3},
+{id:"d119",n:8,regions:"AAAABBCCAAABBCCCABBBDDECABBBDDEFAGFFFFFFAGGFFFHFGGFFFHHHFFFFFFFH",solution:[7,3,6,4,0,2,5,1],difficulty:4},
+{id:"d120",n:8,regions:"AABBBBBCDABCCCBCDBBBBCCCBBBEBFFCEBEEEFCCEEEEEFCGEEGGEGHGEEEGGGGG",solution:[1,7,0,2,5,3,6,4],difficulty:3},
+{id:"d121",n:8,regions:"AABBBBBBAAAAABBBAACCBBDDAAACBBBDAEEFBBBDEEBBBGDDEEBBBGGGEEBGGGHH",solution:[4,0,2,7,3,5,1,6],difficulty:3},
+{id:"d122",n:8,regions:"AAAAABCCADDDEBBEADDEEEEEADDDDDEEFFFDDEEGFGGGEEEGHGGGGGGGHHGGGGGG",solution:[7,5,0,4,2,6,3,1],difficulty:2},
+{id:"d123",n:9,regions:"AAAAABBBBAAAAABCCBAADAABCCCEDDAABBCCEEDAABFCGEEEBBBFCHEEEBIFFCHEBBBIHHHHBBIIIIIHH",solution:[1,6,2,0,8,3,5,7,4],difficulty:5},
+{id:"d124",n:8,regions:"ABBBBBBBAAABBBCCADDDBEECADDDBBEEFFFBBGGEFFBBBGHEFFBFGGHEFFFFFFHE",solution:[0,7,5,1,3,6,4,2],difficulty:3},
+{id:"d125",n:9,regions:"AABBBBBBBABBBCCBBBAABDBBBBBADDDDDEBBADDEEEEEBDDFFFFEEEDDGGHHHEEDDDGHIHEHDDGGIIHHH",solution:[0,4,8,1,7,2,6,3,5],difficulty:4},
+{id:"d126",n:9,regions:"AAAAAAAAAAAAAABBBBAAACAAABDEACCFFDDDEAAFFFDDDEAAFGFDDHFAFFGFHHHFAAFGGGHHFFFFIHHHH",solution:[1,5,3,7,0,8,2,6,4],difficulty:2},
+{id:"d127",n:9,regions:"AAAAAABCCAAAABABCCAAAABBBCDEFFABBDDDEFFBBGGDBEFBBHHHBBFFFBBHHBBFBFBBBBBBFBBBBIIII",solution:[7,2,8,0,6,4,1,3,5],difficulty:4},
+{id:"d128",n:9,regions:"ABBBBBCCCADDDDBBCCDDDEBBCCCDFDEGBBBCDFFGGGBCCFFFHHCCCCFFFFHCCCCFFFFFCCCIFFFFFFFCC",solution:[0,6,1,3,5,7,4,8,2],difficulty:3},
+{id:"d129",n:9,regions:"AABBBBBBBAABBCCBBBAABCCDDDEAAAAAEEEEAAFAAGGGEAFFAAGGGEAFFGGGGGHFFIGGGGGHFFGGGGHHH",solution:[3,5,7,0,8,1,4,2,6],difficulty:4},
+{id:"d130",n:8,regions:"ABAACCCCAAAAAAACADDDACACAAAAACCCAAEEEFCCAEEEGFHHEEEEGFFHEEEEGGHH",solution:[1,7,3,0,5,2,4,6],difficulty:3},
+{id:"d131",n:8,regions:"AABBBBBCABBDCCCCABBDDCCCAADDDEECAADDDCCCAAAFDDDGAAAFDFFGAAFFFFHH",solution:[0,4,1,5,2,7,3,6],difficulty:2},
+{id:"d132",n:8,regions:"AAABBBBBAAAABBBBAABBBBCBABBBDECBAFFDDECBAAAADEGBAAADDDGGAAHHDDDD",solution:[3,0,6,4,1,5,7,2],difficulty:2},
+{id:"d133",n:9,regions:"AAAABBBCDAAEEEECCDAEEFECCDDAEEFFFDDDAAAAFFFDDAAAGGFDDDHAAGFFFDDHHGGDDDDDIIGGGDDDD",solution:[5,7,4,8,6,2,0,3,1],difficulty:3},
+{id:"d134",n:7,regions:"AAAABBBCAAAAABCCAABBBCDAEBBBDDDEFFBGDDDFBBDDDDBBB",solution:[6,4,1,3,5,0,2],difficulty:2},
+{id:"d135",n:8,regions:"AAAABBBCACCCCBCCACDDCCCEDDDCCFFEDGGGCEEEDGGGCCEEDDDGDDDHDDDDDDDH",solution:[4,2,0,5,3,6,1,7],difficulty:3},
+{id:"d136",n:9,regions:"AAAAAAAABACAAAADABEEFFFADDBEGFFGDDBBEGFGGGBBBHGGGBGBBBHHBBBBBBBHHBHHHBBBHHHHIIBBB",solution:[7,1,4,6,0,2,8,3,5],difficulty:3},
+{id:"d137",n:8,regions:"AAAAAAABACCAABBBAACAACDDECCCCCCDEEECEECEFFEEEEEEFFFEGGHEFFFEEEHE",solution:[2,5,7,0,3,1,4,6],difficulty:3},
+{id:"d138",n:9,regions:"AAABBBBBBCCBBDBBBBCEBBDDDBFCEBBDDDDFEEEBDGGGGEDDDDDGGGEHHDDDIIGEHHDHHGGGEHHHHHHGG",solution:[2,5,0,8,1,3,6,4,7],difficulty:3},
+{id:"d139",n:9,regions:"ABBCDEEEEABBCDFFEEAABBDFEEEABBFFFFFGABBBBFFFFHBBBFFIFFHBBBBIIFFHBBIIIIFFHHBBIIIII",solution:[3,7,4,8,0,5,2,6,1],difficulty:3},
+{id:"d140",n:8,regions:"AABBCCCCADDBCDCEADDBBDCEAADDDDEEFAAGDDEEFFFFDEEEFHHFDEEEHHHHHEEE",solution:[2,6,0,5,3,1,7,4],difficulty:4},
+{id:"d141",n:8,regions:"AAAAAAAAAAAABBAACAAAABDAAABBBBDAEEFGBBDDEFFGGDDDEEGGGGHDGGGGGHHH",solution:[3,5,0,6,2,4,1,7],difficulty:3},
+{id:"d142",n:9,regions:"AAAAABBBBACABBBDBEACCBEBBBEAACCEEEEEAACCFEEGGAACCFHHHGAAACFFFFGAIICCCFCGAIIICCCCC",solution:[0,6,3,5,2,7,4,8,1],difficulty:4},
+{id:"d143",n:8,regions:"AABBBBBBABBCBCCDABBCCCCDABAECCDDAAAEDDDDFGGGDDDDFGFGDDDDFFFHHHHD",solution:[1,4,6,3,7,2,0,5],difficulty:3},
+{id:"d144",n:9,regions:"ABBCCCCCCAABBCCCCCAAABBDDCCAEEBDDDDCAEEDDDCCCAFEEDDCCCAFEDDDDGGAFEEDHDDGAEEEDIIIG",solution:[6,3,0,2,4,1,8,5,7],difficulty:3},
+{id:"d145",n:8,regions:"AABBCCCCAAAAACCDEAAAAAADEEAAFDADEEAFFDDDEEAAGGDHEEEEHHHHEEEEHHHH",solution:[2,6,1,7,3,5,0,4],difficulty:2},
+{id:"d146",n:9,regions:"AAAAABBBCADDDAABCCAADDEEBBBAAAAAAFFBGHIAAAABBGHIIIIABBGGGIIIAABGGIIIAAABGGGGGGGGG",solution:[8,2,4,6,1,7,3,5,0],difficulty:2},
+{id:"d147",n:8,regions:"AAABBBBBACCDBBBBEEDDDBBBEEDFDDBBEEFFFBBBEEFFEGGBEEEEEHGBEEEEEHBB",solution:[0,2,4,7,3,6,1,5],difficulty:3},
+{id:"d148",n:9,regions:"AAAABBBBBCBAAAABBBCBDDDDDBBCBBDDBBBBCEBBBBBBBFEFFFFBBFFFFGFFFFFHGGGFIIIFHHHFFIIIF",solution:[7,5,0,4,1,8,3,6,2],difficulty:2},
+{id:"d149",n:8,regions:"AAAAAABBAAAAABBBCADEAFFFCADEAAGFCCDAAAGGHCDAAAAGHCGGGGAGHCCCGGGG",solution:[4,6,3,7,2,0,5,1],difficulty:3},
+{id:"d150",n:8,regions:"AABBCDEEBBBBCDDEBBCCCCCEFBCGGCCEFFFFGGEEFHFGGGEGFHFFGGGGHHHHGGGG",solution:[0,6,4,1,7,2,5,3],difficulty:5},
+{id:"d151",n:8,regions:"AABCCCDDAABBDDDDAAABBDEEAAABBDEEAFFGEEEEAGGGHGEEAGGGGGGGAAAGGGGG",solution:[5,7,3,6,1,4,2,0],difficulty:3},
+{id:"d152",n:7,regions:"ABBBCCCAAAACCCDAEECCCAAAEFCCAFFFFFCAFAGFFFAAAGGGF",solution:[1,6,0,3,5,2,4],difficulty:2},
+{id:"d153",n:9,regions:"ABBBBBBCCABDDDBBCCAEEBBBBFCAEEEEFFFCAEEEEEEFCAAAEEEFFFGAHEEEFFFGGHHEEFHIGGHHHHHHI",solution:[7,3,5,0,4,6,2,8,1],difficulty:4},
+{id:"d154",n:8,regions:"AAAAAABBACCAABBBACAABBBBCCCCDDEBCCDDDEEBCCCFDGGBCCCCDGGBCCHHGGBB",solution:[0,7,1,4,6,3,5,2],difficulty:3},
+{id:"d155",n:8,regions:"AAAAAAAABAACCACABDCCCCCABDEEFCCADDDEFCCADDDFFAAADDFFFGAADDFHFGGG",solution:[7,0,6,2,4,1,5,3],difficulty:2},
+{id:"d156",n:8,regions:"AAAABBCDAEAABBCDAEABBBDDAEABBBFFAEEEBFFFAAEEEEFFAGEEHHHHAGHHHHHH",solution:[6,0,7,3,5,2,4,1],difficulty:3},
+{id:"d157",n:9,regions:"AAAAABBCCAAAABBCCCAAAADCCDDEAADDCCCDEAAADDCDDEFAAGDDDDEFFFGGGGDEHFFGIDDDHHGGGGDDD",solution:[6,8,3,0,7,4,2,5,1],difficulty:3},
+{id:"d158",n:7,regions:"AAAABBBCABBBDBCABCBDDCACCBBBCCCEBFBGCCCFFBGGCFFFF",solution:[2,4,6,0,3,5,1],difficulty:4},
+{id:"d159",n:8,regions:"AABBBBBCAADBBEECDADFFFEEDDDDFFFEDDDFFGEEDFFFFGGEDDDHHGGGDDDDGGGG",solution:[2,7,1,4,6,0,3,5],difficulty:4},
+{id:"d160",n:8,regions:"AAAABBBBAAAACCDDAAAEEFFDAAEEEFFFAAEFFFFFGAEEFHHFGGGGGHFFGGGHHHFF",solution:[6,4,7,1,5,2,0,3],difficulty:3},
+{id:"d161",n:7,regions:"ABBCCCCAABBBCCAADBBBCDDDDBCCDEDFBGCEEDDBGCEDDDGGC",solution:[0,4,2,6,3,1,5],difficulty:4},
+{id:"d162",n:7,regions:"AAABBBBAACCBBBADCBBBBEDDBFFBEDDDDFBEFFFFFFGGGFFFF",solution:[1,3,5,0,4,6,2],difficulty:3},
+{id:"d163",n:8,regions:"ABCCCCCCABBCCCCCBBBBCCCCDBDECCCCDBDEDDFFDDDDDGFFDDHHDGFFDDDHHHHF",solution:[0,2,6,3,7,5,1,4],difficulty:3},
+{id:"d164",n:8,regions:"AAABBBBBCCAADBBBAAADDDBEAFDDDDDEFFFDGDEEFFFDGDDDFHFFDDDDHHFDDDDD",solution:[5,0,2,7,4,6,3,1],difficulty:4},
+{id:"d165",n:8,regions:"AAAAAAAAABBBCCCCADBBBECCADDFFEECADDDFFFCADFFFGGCDDDDDCCCDDDHDDCC",solution:[0,2,5,7,4,6,1,3],difficulty:3},
+{id:"d166",n:8,regions:"AAAAAAABAACAADDDAACAEEDEFACCCEEEFFCGEEEECCCGEEEECCCCEHHECCCCHHHE",solution:[7,1,6,0,3,5,2,4],difficulty:4},
+{id:"d167",n:9,regions:"ABCCCDDEEABBCCCDEEBBBBCCDDEBFFFFDDDEBBBBDDGDDHBHBGDGGGHBHHGGGGGHHHGGGGGGHIIGGGGGG",solution:[0,5,8,4,7,1,3,6,2],difficulty:4},
+{id:"d168",n:7,regions:"AAABBBBAABBBCBDDBBBCBDDEEBEBDDEEEEBFGGEEEBFGGGEBB",solution:[2,5,1,6,4,0,3],difficulty:3},
+{id:"d169",n:7,regions:"AAAAABBABBBBBBAABCCBDEABCCCCEEEECCFEEEGGFFEEEFFFF",solution:[0,2,6,4,1,3,5],difficulty:3},
+{id:"d170",n:7,regions:"AAAAABBAABBBBCAADDBCCADDEBEEADDEBBEDDFEEEEDFFFGGE",solution:[0,3,5,1,6,2,4],difficulty:2},
+{id:"d171",n:7,regions:"AABBBCCAABBDDCAADDDCCAAEEFFFAEEEEFGAEEEEGGEEEEEGG",solution:[3,6,2,4,0,5,1],difficulty:4},
+{id:"d172",n:7,regions:"AAAAAAABABCCAABABBCCABBBDCCCEBBDDCFEGBFDCFEGGFFFF",solution:[4,2,5,3,0,6,1],difficulty:3},
+{id:"d173",n:9,regions:"AAAAABCCCABBBABBDDAABBBBBBBEABFFFFFBEEEEEFFFGHEEGGGGGGHHHHHGHHGIIIIHHHHGIIIIHHHHH",solution:[6,8,3,1,7,2,5,0,4],difficulty:4},
+{id:"d174",n:9,regions:"AAAABBBCCADDABBBBBDDDDBBEEFDDDBBBEEFDDDBBBGEEDDDDDBGGEDDDHDIIEEDDHHEEIIEDHHHEEEEE",solution:[7,0,8,3,6,1,5,2,4],difficulty:2},
+{id:"d175",n:9,regions:"ABBBBCCCCABCCCCCDDAACCCDDDDAACECDDDDAFFEEEEDDAAGGEEEEDHHHGEEIDDHGGGEGDDDHHHGGGGGD",solution:[3,5,1,8,2,4,6,0,7],difficulty:5},
+{id:"d176",n:9,regions:"ABBCCCBDDAABBCBBDDEEBBBBDDDBBBBFBBDDGGBBFBBHDGGGBFFFFDGGGIFFIDDGGIIIIIIIGGGIIIIII",solution:[0,4,1,3,7,5,8,6,2],difficulty:3},
+{id:"d177",n:7,regions:"AABCCCCBBBCCCDEFBEECDEFBEECDEEEEEDDEEGEEDDEGGGDDD",solution:[0,2,5,1,4,6,3],difficulty:3},
+{id:"d178",n:8,regions:"ABBBBBBCABABBBCCAAAAABBCDDEEAABCDDFFGAACDDGFGGACDGGGGGGCDHHHGGGG",solution:[5,7,4,2,0,3,6,1],difficulty:3},
+{id:"d179",n:9,regions:"AAAAAAAAABBBACADAAEEBACCAAAEEFFFCCAAEFFFCCAAAEFGFFFHAAFFGFFHHHAFFGGFFHHHIIIGHHHHH",solution:[8,6,2,5,0,4,7,3,1],difficulty:3},
+{id:"d180",n:8,regions:"AAAAAABBACCBBBBBADCBBEBBDDCBBEBBDCCCFEGBDHHHEEGGHHGGGGGGHHGGGGGG",solution:[3,7,5,2,4,0,6,1],difficulty:4},
+{id:"d181",n:9,regions:"AABBCCCCCAABBCCBCCAAABBBBBBAAADBBBEEADDDBBBBEFFGDDGBBEFFGGGGBBEFHGGGGBBEHHHGGIBBB",solution:[8,6,2,7,3,0,4,1,5],difficulty:2},
+{id:"d182",n:9,regions:"AAABBCCDDAAABBBCEDAAABBBEEEAAAAABBEEAAABABBBEBBBBBBFFEGHHHHHHFEGHGGHHFFFGGGIHHHHF",solution:[5,8,4,7,1,6,2,0,3],difficulty:5},
+{id:"d183",n:7,regions:"ABCCCCCABBDCECABBDDECBBBDCCCBDDDDDCBBBDFDGBBBDFDD",solution:[2,0,5,1,3,6,4],difficulty:3},
+{id:"d184",n:8,regions:"ABBBBBBCABBDDBBCAAADDDDAAEAAAAAAAEAAAFAAEEAFFFFFEEFFFFGGEFFFHHHG",solution:[2,7,3,0,5,1,6,4],difficulty:4},
+{id:"d185",n:8,regions:"ABBCCBDDAABBBBBDAEEEBBBDAEEBBFFFAEEEBFFFGGEEEFFFGHEEFFFFHHHHFFFF",solution:[4,7,5,0,3,1,6,2],difficulty:4},
+{id:"d186",n:8,regions:"AABBBBBBBABBBBBCBBBDEFFCGDDDEECCGDEEEEEEGGGEEEEEGGGGGEEEGGGHHHEE",solution:[0,3,5,7,1,6,2,4],difficulty:4},
+{id:"d187",n:9,regions:"ABBCCCCCCACCCDDCCDAACCCDCCDCCCEEDDDDCCEEEDDDFEEEEEEEEFEGGEEEGFFHIGGGEGGFHIIIGGGFF",solution:[2,7,1,5,8,4,6,0,3],difficulty:3},
+{id:"d188",n:8,regions:"AAAAABBBCCCAADDBCCCAAAAACCCEFAGGHCCEFFFGHCCEEFFFHFFFFFFFFFFFFFFF",solution:[7,5,3,6,1,4,0,2],difficulty:3},
+{id:"d189",n:8,regions:"AAAAAAAABBAAAAAABBBAACCABAAADCEEBFAADCEEBFFDDCEGDDFDDHGGDDDDHHGG",solution:[2,0,5,7,1,3,6,4],difficulty:4},
+{id:"d190",n:7,regions:"ABBCCCCAABDDBCBBBBBBCBBBEEEFGGGEEFFGGFFFFFGGFFFFF",solution:[0,3,6,2,4,1,5],difficulty:2},
+{id:"d191",n:8,regions:"ABBBBCCCADDBCCECAADFGCEEADDFGEEEADDFEEHHADDHHEHHAAAHHEHHAAAHHHHH",solution:[2,7,4,1,3,5,0,6],difficulty:3},
+{id:"d192",n:9,regions:"AAAAABBBBAAAAABBBBAAACDBBEBCACCDBBEECCCCDDDDEFFCGGDDDDFCCGDDHHDFCCGGDDHDCCGGIDHHD",solution:[8,1,7,2,5,3,6,0,4],difficulty:4},
+{id:"d193",n:8,regions:"AABCCDDDAABCEDDDAAEEEDDDAEEEEDDDADDDEDDDAFFDDDGHAGDDGGGHGGGGGHHH",solution:[4,2,0,3,6,1,5,7],difficulty:3},
+{id:"d194",n:7,regions:"AAAABBCAAABBCCADAACCCADACCCCAEAAFCCAEAAFFGEEEEEEG",solution:[0,3,5,1,4,6,2],difficulty:2},
+{id:"d195",n:8,regions:"ABCCCCCCABCCCDCCAACCCCCCAAEECCCCFEEGGCHCFEGGGGHGFFFFGGGGFFFFFFFG",solution:[1,5,0,4,2,6,3,7],difficulty:4},
+{id:"d196",n:8,regions:"AABBBBBBCAAAAABBCCCAAABBCCCDAAAACCCDDAAECCCFFGGECHCCFFEECHHFFFEE",solution:[6,2,0,3,7,5,1,4],difficulty:4},
+{id:"d197",n:7,regions:"AAABBBBABBBBCBAAACCCCAADEEECDDDEEFGDDDEGFGEEEEGGG",solution:[0,2,6,3,5,1,4],difficulty:4},
+{id:"d198",n:9,regions:"AAAAAAAAABAAACCDDABEAACCDFAEEAEECFFAEEAEFFFFAEEEEGGGFFEEEGGGFFFEHEEGGGFFHHIIGGGFF",solution:[8,6,0,5,7,2,4,1,3],difficulty:2},
+{id:"d199",n:8,regions:"AAAABCCCDEAABBCCDEEABACCDDDAAACCDAAAAFFFDDAAFFFGDAAFFFFGAAAFFFHH",solution:[5,1,4,0,2,7,3,6],difficulty:2},
+{id:"d200",n:8,regions:"ABBCCCDDABEECCCDBBEEECFDBEEECCCDBBEEGGCCBBEHGGGGBBHHHHHGBBBGGGGG",solution:[7,0,6,4,2,5,3,1],difficulty:3},
+{id:"d201",n:9,regions:"AAABBBBCCAAAADDBCCAEEDDCCCCAAEECCCEEFFFEEECCEGGFEHEEEEHFFHHEEEEHHHHEEEEIHHHEEEEEI",solution:[5,1,4,6,2,0,7,3,8],difficulty:3},
+{id:"d202",n:9,regions:"AAABBCCDDAACCCCEEDAAACCCCCDFAACCCCCCFFAGGCCCCFFAACCHCHAAAAAAHHHAAAIAAAAHAAIIIAHHH",solution:[4,6,8,5,3,1,7,0,2],difficulty:3},
+{id:"d203",n:7,regions:"AAABCCCAAAAACCADAAEECADDDEECADDFFEEAFFFEEEGGFEEEE",solution:[3,5,0,2,4,6,1],difficulty:3},
+{id:"d204",n:9,regions:"AAAAAAAAAABAAACDDABBBACCDDABAAAAADDDBBAAAADEDBBBABFFEEBGBBBFBEEGGGHBBBIEGGGHHBIII",solution:[2,6,4,0,7,5,1,3,8],difficulty:4},
+{id:"d205",n:7,regions:"AAAAAAAABACCCABBCCDDABCCEDEFBGCEEEEBGGGEEEGGGGEEE",solution:[3,1,4,6,2,5,0],difficulty:2},
+{id:"d206",n:9,regions:"ABBBBBBBBBBCBCCCBDBBCCCCDDDBBEECCDDDFDDDDDDGGFFHHHGGGGIIHHGGGGGIIIHGHGGGIIIHHHGGG",solution:[0,7,5,3,6,1,8,2,4],difficulty:2},
+{id:"d207",n:8,regions:"AAAAAABCDAAABBBCDAAAAABBDDDDBBBBDDEEBBFBDDDDDFFBGDDDHFFBGHHHHFFF",solution:[7,2,6,1,3,5,0,4],difficulty:4},
+{id:"d208",n:7,regions:"AAAABBBAAAAAABAACCCBBDDDCEBEDDFDEEEDDDDEEEGGGDEEE",solution:[3,6,4,0,2,5,1],difficulty:3},
+{id:"d209",n:8,regions:"AAABBBCDAAEBFFCDAEEEFFCDAAEEDDDDAAAEEDDDAAAAGDDDGGAAGDDDGGGGGHHD",solution:[3,6,4,2,0,7,1,5],difficulty:3},
+{id:"d210",n:9,regions:"ABBBBBCCCAABDBCCCCAAADBBCCCAAADDDDCCAADDEEDCCFAADGGDCCHGADGDDCIHGGGGDDDIHHGGGGGGI",solution:[5,7,2,6,4,0,8,3,1],difficulty:4},
+{id:"d211",n:8,regions:"AAABBBBBABBBCCBBABBBCCBBAAAACDBEAFGCCDDEAGGHCCCEAGHHHGGEGGGGGGEE",solution:[6,4,0,5,1,3,7,2],difficulty:3},
+{id:"d212",n:8,regions:"AAABBAAACAABBADDCAAAAAADCCCEEAADCCEEAAADFCEEEEAAFCGGGGHACCCCCGHH",solution:[4,7,5,1,3,0,2,6],difficulty:3},
+{id:"d213",n:7,regions:"ABBBBBCAABBDCCEBBDDDDEEBBFDDEBBFFFDGFFFFDDGGGFFFD",solution:[6,1,5,3,0,4,2],difficulty:4},
+{id:"d214",n:9,regions:"AABBBCCCDEAABBCDCDEEBBFCDDDEEGBFFBDDHEGBBBBBDHHGBBBBDDHHGGIBDDBGGGIIBBDBGGGGBBBBB",solution:[7,2,0,5,8,1,4,6,3],difficulty:4},
+{id:"d215",n:8,regions:"AAAAAAAAAAAABBBBAAAAABCBADDEAACFADDEGFFFADHEGGFHDDHHHHHHDDDHHHHH",solution:[1,4,6,3,7,5,2,0],difficulty:2},
+{id:"d216",n:8,regions:"AABAAAAAAAAAACAAAADADCCAAADDDCAAADDDEEFFGDGGGGFFGGGHGGFGGGGHHGGG",solution:[2,0,6,3,5,7,1,4],difficulty:4},
+{id:"d217",n:9,regions:"AAABBCCCCADDBBBCBBADDBBBBBBDDDEEFBBBDDDDEFFFFDDDEEGFFFDHDGGGFFFDDDDGGGFFIIIDDDGGG",solution:[2,6,8,4,7,5,1,3,0],difficulty:4},
+{id:"d218",n:8,regions:"AAABBBCCADDDBBCBAAADDBBBADDDBBBBAEDDFBGGADDFFHHGAADDFGHGAAAFFGGG",solution:[6,2,0,4,1,5,7,3],difficulty:3},
+{id:"d219",n:8,regions:"AABBBBCCAABAABBDAAAABBBDEEAABFBDEEAFFFBDEFFFFGDDEEEEHGDHEEEEHHHH",solution:[6,2,0,7,3,5,1,4],difficulty:3},
+{id:"d220",n:8,regions:"AABACCCDABBACCCCAAAACCCCAAEECCCCAAFFCCCCGGFFHHCHFFFFHHHHFFFFFFHH",solution:[7,2,0,3,5,1,6,4],difficulty:3},
+{id:"d221",n:8,regions:"AAABBBBBACBBBBBBACBBBBDDCCBEEEDDCCFFFDDDGCCFFDDDGCHFFDDDHHHHDDDD",solution:[2,6,1,5,7,4,0,3],difficulty:3},
+{id:"d222",n:9,regions:"AAABCDDEFABBBCDDEEABBCCDDEGAAAAADEEGAAAAHHEGGAHHHHEEEGHHHHEEEEEHHHEEHEEEIIHHHHEEE",solution:[8,4,2,5,7,0,3,6,1],difficulty:4},
+{id:"d223",n:8,regions:"ABBCCCCCABCCCCCCACCDCEEEAFDDDEEEAFEEEEEEGEEEHHEEGEGHHHEHGGGGHHHH",solution:[2,6,0,4,1,7,5,3],difficulty:3},
+{id:"d224",n:9,regions:"AABBBCCCCAABBBBBCCAABDCCCCEAFBCCEEEEAFBGGFEHEAFFFFFEHEFFEEEEEIEFFFFEEEIIFFFEEIIII",solution:[2,8,3,0,4,7,5,1,6],difficulty:3},
+{id:"d225",n:8,regions:"AABBBBBCADDBDCCCAEDDDCCCEEEFFCGCEHEHCCGCEHEHHHGCEHHHHHGGHHHHHHHH",solution:[6,4,0,3,5,2,7,1],difficulty:3},
+{id:"d226",n:8,regions:"AAABCCDDAABBCCCCABBAEECCAAAAAEECAEEAEEFCAEEEEEFFAAAAEGGFAHHEEEGF",solution:[7,4,2,0,6,3,5,1],difficulty:4},
+{id:"d227",n:7,regions:"AAABCCCAACBCDCAECCCDCAACCDDDFCCCFDGFFFCFFGFFFFFFF",solution:[0,3,1,5,2,6,4],difficulty:2},
+{id:"d228",n:8,regions:"ABBBBCCDABEBBCDDAAABCCCCBBBBBCCCFBBBBBGGFBBBBBGGFFFFFHGGFFFFHHHG",solution:[7,2,0,5,3,6,1,4],difficulty:2},
+{id:"d229",n:9,regions:"AABBCCCCCABBCCDCCCABBBBDDDCAABBEEDCCAABBBEDFCBBBEEEFFFGBEEEEHFFGBGGHHHFFGGGHHIHFF",solution:[1,3,7,4,2,8,6,0,5],difficulty:2},
+{id:"d230",n:8,regions:"ABAAAAAAABAACDDDAAACCCEEACCCCCCEFFCGCCCCGGCGCCHHGGGGGCHGGGGGGGGG",solution:[1,5,2,7,0,4,6,3],difficulty:2},
+{id:"d231",n:9,regions:"AAAABBCCBADDAABCBBDDDAABBBBEEAAAAABBEEEEBBBBBEFEFFBBGBEFFFFBGGGEFEFBBHGGEEEFIHHHH",solution:[7,1,5,2,0,3,8,6,4],difficulty:3},
+{id:"d232",n:9,regions:"AAAAAABBBACABBAABBACDBBBBBBACDDDDBBEADDDFDBBEADFFFDBEEAAGHHDBBBAAHHDDIIIAHHHHDDII",solution:[0,7,1,5,8,4,2,6,3],difficulty:3},
+{id:"d233",n:8,regions:"AAAAAAAAAABBAACDAAEECCCDAAAEECCCAFFEECCCAFFEFFGCAHFFFFGGFFFFFFFG",solution:[0,2,7,5,3,6,1,4],difficulty:2},
+{id:"d234",n:8,regions:"AAAAABBBAACCBBBDAACCEDBDFAGEEDDDFGGGGGGDGGHHGGDDGGGHDDDDGGGGDDDD",solution:[1,6,2,4,0,5,3,7],difficulty:4},
+{id:"d235",n:8,regions:"ABBAAAAAAAAACAAAAADDCAAEFAFDCAEEFFFCCGEEFHHCCCCHFFHHHCHHFFFFHHHH",solution:[1,6,2,7,5,3,0,4],difficulty:4},
+{id:"d236",n:8,regions:"AABBBBBBCAAAABDBCAABBBBEFAABGBBEFFFGGBEEFGFFGGGEGGGGGEEEGGHHGGGE",solution:[1,6,0,5,2,4,7,3],difficulty:4},
+{id:"d237",n:9,regions:"AAAAAAAAABCADAAAAABCCDDAAAEBCCDDFAAEBBCGDFEEECCCGCHEEICCCCCHHIIHHCCHHHIIHHHHHHHHI",solution:[6,0,4,8,5,3,1,7,2],difficulty:3},
+{id:"d238",n:8,regions:"AAAAABCCAADDDBCCAADDDDDCEFFFDCCCFFFDDDDDGHFFFFDDGHGFFFDFGGGFFFFF",solution:[3,5,7,0,6,1,4,2],difficulty:3},
+{id:"d239",n:8,regions:"ABCCCCCCABBBBCDDABCBCCCDAACCCDDDEAFGCDDHEAFGCCDHEFFFFDDHEFDDDDHH",solution:[5,2,7,1,3,0,4,6],difficulty:2},
+{id:"d240",n:8,regions:"AABBBBBBABBBCCCBAAABBBCBAADBBBCCEEDFFBBCDDDFGBBBDFFFGGGGDDDDGHHG",solution:[1,6,4,2,0,3,7,5],difficulty:4},
+{id:"d241",n:9,regions:"AAAABCCDEFABBBGDDEFAABBGGGEFABBGGGGEFABBBBEEEAAEEEEEEEAEEEHHEEEAEHHHEIIIEEEEEEEII",solution:[5,7,0,6,3,1,4,8,2],difficulty:5},
+{id:"d242",n:9,regions:"ABCCCDDEEAACCCFDDEAACCCFFDECACCFFFDECCCCCGFDDCCCCCGFDDCCHHHGGDDHCHGHGDDDHHHGGGIII",solution:[1,8,0,4,7,3,5,2,6],difficulty:4},
+{id:"d243",n:8,regions:"ABBBBBBCADBEBFFCADDEBBFCAGGEFFFFAGGEEFFFGGEEFFFFGEEHFFFFGEEEEFFF",solution:[5,7,2,0,4,1,3,6],difficulty:4},
+{id:"d244",n:9,regions:"ABBBBCDDDAAACCCDDCAEEEECCDCAEEECCCCCAAAECECCCAFGEEECCCFFGGEEEEHFGGEEEEIIFGEEEEEII",solution:[4,6,0,5,3,1,8,2,7],difficulty:4},
+{id:"d245",n:9,regions:"AABBCCCCCABBBCCCCDABBCCCCCDBBBCCBCBDEBBBBBBBDEEEEFFFBBEEEGFGBBBHHEGGGBIBHHHGGGIII",solution:[1,4,8,5,0,6,3,7,2],difficulty:4},
+{id:"d246",n:8,regions:"AAAAABBBAAAABBCCAAAADBCCAADDDBBCEAADDBBBEFFDDDBBEGFFBBBHGGFFFBBH",solution:[5,3,6,4,0,2,7,1],difficulty:4},
+{id:"d247",n:7,regions:"ABBBBBCABBDCCCADDDCCCADEEECCFFFFFFCFGGCCFCFFFCCCC",solution:[5,3,0,2,4,1,6],difficulty:3},
+{id:"d248",n:8,regions:"AABBBBBBCABBCBBBCACCCCBBCCCCDCBBCCCCDCEBCFCCGGEBFFFGGGBBFHHHGBBB",solution:[0,7,2,4,6,1,5,3],difficulty:3},
+{id:"d249",n:7,regions:"AAAABBBACAAADBACAAADDAEEDDDDAAEDFFFAEEDDDDAAEDGGG",solution:[0,6,1,3,5,2,4],difficulty:3},
+{id:"d250",n:9,regions:"AABBCCCCCADDCCEEECAADCCCCCFAAACCCCCFAAAAAGGCFAAAHHHFFFAAAAHHFFFAAAAHHFIIAHHHHHFFF",solution:[3,5,2,4,6,8,0,7,1],difficulty:3},
+{id:"d251",n:7,regions:"AAAAAAAAABBCAAABBDDDAABDDDDDABBBDEDAFFGDEGAAGGGGG",solution:[0,4,1,3,5,2,6],difficulty:2},
+{id:"d252",n:7,regions:"ABBCCCCAAACDDCAACCDDEACCCCDDACFCDDDAAFFDDDAFFGGDD",solution:[1,3,6,0,5,2,4],difficulty:3},
+{id:"d253",n:8,regions:"AAAAAABCAAAABBBCAAADDBBCEEADDFGGEHHDFFFDEHHDDDDDEHDDHDDDHHHHHDDD",solution:[7,5,2,6,4,0,3,1],difficulty:3},
+{id:"d254",n:9,regions:"AAAAAAAAAAAAAAAAABAACAAADBBCCCAEEDDBFCCADDDDDFCCADGHHHCCDADGGGGDCDDDDDGIDDDDDIIII",solution:[1,8,2,4,0,7,5,3,6],difficulty:4},
+{id:"d255",n:9,regions:"AABBBBBBCADDEBBBBCAAEEEBFBCABBBBBFBBGGBBBBFFBGGHBHBFFIHHHHHHFIIHHHHIFFIIHHHIIIIII",solution:[8,2,4,0,5,1,6,3,7],difficulty:2},
+{id:"d256",n:8,regions:"AAAAAABBCCAADABDCCCCDDBDCCECDDDDFFEEEEEDFFGEDDDDFHGEEDDDHHGEEEED",solution:[7,5,3,6,0,2,4,1],difficulty:5},
+{id:"d257",n:7,regions:"AABBBCCDDBBCCCDDBECCEDBBEEEEDBEEEEEFFEGGEEFFFFEEE",solution:[1,3,5,0,6,4,2],difficulty:4},
+{id:"d258",n:8,regions:"ABBCDDDEACCCCDEEAFFCGGGEAFFCCCGEAAFFHEEEAAAHHEEEHAAAHEHEHHHHHHHH",solution:[1,5,3,6,2,0,7,4],difficulty:2},
+{id:"d259",n:8,regions:"AAAAAABBACCACABDAACACCBDEECCCCCCEECCFFCFEEFGFFFFEEFFFFFFEEEHHHFF",solution:[6,0,7,2,5,3,1,4],difficulty:3},
+{id:"d260",n:9,regions:"AAAABBBBCDABBBEEBCDAABBBEBCFFABBGGCCGAABAAGGCGGAAAAGHCIGGGAAGHGIIGGAGGGGIIIGGGGGG",solution:[4,0,6,1,8,3,7,5,2],difficulty:3},
+{id:"d261",n:7,regions:"AAAAABBCDABBBBCCCBBBCCCCCCCCCECCCEFCEEGGEFCEEEEEE",solution:[3,1,5,0,6,4,2],difficulty:2},
+{id:"d262",n:7,regions:"AAAAAABAACAAABABBBBBBDBBBEEBDFFBEBBDDFFFBBGGFFFFB",solution:[5,2,6,4,0,3,1],difficulty:2},
+{id:"d263",n:9,regions:"AAABBBBBCADABBCCCCADBBBBBBCDDBBECCCCFDBBEECCCFBBGEHCICFBBGEHECCBBGGEEEECBGGGGEECC",solution:[2,4,1,8,0,7,5,3,6],difficulty:3},
+{id:"d264",n:7,regions:"AAAABBBAAABBBBCCABDBECCAADDDCCCCDDDFFCDDGGCCCCDGG",solution:[1,3,6,4,2,0,5],difficulty:2},
+{id:"d265",n:7,regions:"AABBCCCAABDCCCABBDDCCAAAADDCAAEACFCAAECCCCGGGGCCC",solution:[3,6,4,1,5,2,0],difficulty:2},
+{id:"d266",n:7,regions:"AAABBBBCABBBDBCABBBDDCEFBDDDEEFGGDDEEEGGDDEEEEEED",solution:[1,4,0,2,6,3,5],difficulty:3},
+{id:"d267",n:8,regions:"ABBCCCCDAABBCDDDEEBBCCFFGEBBHHFFGGGBGHFFGGGGGHHFGGGGHHHHGGGGGGHH",solution:[0,6,4,1,3,7,5,2],difficulty:4},
+{id:"d268",n:8,regions:"AABCCCCCABBBDDCCAABDDCCCAABDDECCAADDDECCAADFDECGAAAFDHCGAAHHHHHH",solution:[6,1,4,0,5,3,7,2],difficulty:2},
+{id:"d269",n:9,regions:"ABBBBBCDDBBBBBCCDDBEEEECDDDEEFEGDDHDFEFGGDHHHFFFFGIHHIFFFFIIHIIFFFIIIIIIFFFFFIIII",solution:[0,3,5,8,1,4,6,2,7],difficulty:2},
+{id:"d270",n:9,regions:"AAABBCDDCAAABBCCDCABBBBCCCCAAEBCCCCCAEEEECFGCAAEEECFGCEEEHCCFCCEEHHHCFFFEHHIICCFF",solution:[6,0,2,5,1,7,3,8,4],difficulty:2},
+{id:"d271",n:8,regions:"AAAAAAAAAAABABAAACCBBBBACCCCDBBBCECDDDBFGECCCBBFGGCCHBFFGGGGHHHH",solution:[3,5,2,4,1,7,0,6],difficulty:3},
+{id:"d272",n:8,regions:"AAAAABCCDADDDBEEDADDBBEEDDDFFFEGDFFFFFEGDHHHFFFGDHHFFFGGDHHFFGGG",solution:[7,1,4,6,3,0,2,5],difficulty:3},
+{id:"d273",n:9,regions:"AAABBBCCDAEEBBBCDDEEEBBBFDDEEBBGGFDDEEEHGFFDDEIIGGGGGDEEIGGIDDDEEIIGIDDDEIIIIIIID",solution:[7,0,4,6,3,5,1,8,2],difficulty:3},
+{id:"d274",n:8,regions:"ABBBBCCDABBBCCCDAABBBCDDABBEFCCDABEEFCFDGHDEFFFDGGDDFDDDGGGDDDDD",solution:[4,0,5,3,6,1,7,2],difficulty:2},
+{id:"d275",n:9,regions:"AABBCCCCCAABDCCCCCAEDDFCFFCEEEFFFFCCEGGFFFHCCGGGFFFHCCGGGGGGHHIGGGGGGHHHGGGGHHHHH",solution:[2,0,3,1,7,5,8,4,6],difficulty:3},
+{id:"d276",n:9,regions:"AAAABCCCCDDAEEEECCDAAAECCCFDDDAECCCFDDDEEGCCCDDDDGGGCCDDHGGGGCGDHHHIIGCGDDDHIGGGG",solution:[4,7,1,8,3,6,2,5,0],difficulty:2},
+{id:"d277",n:8,regions:"AABBBBCCAAAABCCCDAEFEGCCDAEEEGCGDAHEEGCGDDHHHGGGDDDHHGGDDDDDDDDD",solution:[5,7,3,1,4,2,6,0],difficulty:2},
+{id:"d278",n:8,regions:"ABBCCCCDABBCECCDAACCECCDAAFEECCCAAAEEECCAAAACCCCGGAAACCCGGGAAAHH",solution:[4,1,7,2,5,3,0,6],difficulty:2},
+{id:"d279",n:9,regions:"AABBBBBCCAADDBBBBBADDDDEBBBFGGDDEHBHFFGDEEHBHFFFFEIHHHFFFFEEEHEFFFFFEEEEFFFFEEEEE",solution:[8,0,6,1,3,5,7,2,4],difficulty:4},
+{id:"d280",n:9,regions:"AAABCBBDDAAABCBBEEAABBBBBEEAAFFBBBBEAFFBBBGBEAABBGGGGGAAABGGGGGAAHBBBBBBAAHHHBIII",solution:[7,4,0,8,1,3,5,2,6],difficulty:2},
+{id:"d281",n:9,regions:"AAAABBBBBACABBBBBBCCABBBBBBCCDBBBEFBCDDDDEEFBCCDEEEFFBCGHEEEIFBCGHHIIIFBCHHIIFFFB",solution:[3,8,0,6,4,7,1,5,2],difficulty:3},
+{id:"d282",n:8,regions:"AAAABBBCAAADDBCCAADDABBCAAAAAEBCFFGGAECCFHHHACCCFHFFAACCFFFAAACC",solution:[6,4,0,5,3,1,7,2],difficulty:3},
+{id:"d283",n:8,regions:"ABBBBBBBAABCBDBBACCCBDBBACCCCDDBECCCFDDDECFCFGDDECFCFGHHECFFFFFF",solution:[4,1,3,6,0,5,7,2],difficulty:2},
+{id:"d284",n:9,regions:"AABBBCCCDABBBCCCCDABEBBBCDDBBEBBFFDDBBEEFFFDDEEEEFGGDDEEEEFHGDDIDDDDHGDDIDDDDDDDD",solution:[1,7,3,8,4,6,2,5,0],difficulty:3},
+{id:"d285",n:8,regions:"ABBCCCDDAABEECCDBBBBBBCDBBFFFCCCGBGFFFGHGGGFGGGHGGGGGHHHGGGGHHHH",solution:[0,4,7,5,1,3,6,2],difficulty:2},
+{id:"d286",n:8,regions:"AAAAAABCABBBBBBCAACCCCCCAACDCEECACCCEEEFAAAEEFEFAGGFFFFFGGGHHFFF",solution:[0,2,6,3,5,7,1,4],difficulty:3},
+{id:"d287",n:8,regions:"AAAAAAAABAACCCCABACCCCCDAAACECFDAAEEEGFDEEEEGGGGEEGGGGHHEEEGGHHH",solution:[2,0,7,3,6,4,1,5],difficulty:3},
+{id:"d288",n:8,regions:"AAABBBBCAABBDDBCAABADCCCAAAADEECAFAEEEEEAFAEGEEEFFAEGHGGFEEEGGGG",solution:[0,2,6,4,1,3,5,7],difficulty:2},
+{id:"d289",n:7,regions:"AAABCCCADABCCCADABEECDDDDDFCDFDFFFFDFDFFGFFFFFFGG",solution:[3,0,4,6,2,5,1],difficulty:4},
+{id:"d290",n:8,regions:"AAABBBCDAAACBCCDAEECCCFFEEEECGFGEEECCGFGEEHCCGGGEEHHHHGGEHHGGGGG",solution:[3,7,0,6,1,4,2,5],difficulty:4},
+{id:"d291",n:7,regions:"AABBBCCABBBDCCAABBDCEADDDDCEADDDCCEFDDDDDEFFFFFGE",solution:[1,3,6,2,4,0,5],difficulty:2},
+{id:"d292",n:8,regions:"AAABBBBBBBBBBBBBBCBDBEEEFFBDBBDEFFBDBBDDFBBDDDDDGGGGDDDDGGGGGGHH",solution:[2,4,1,7,0,5,3,6],difficulty:2},
+{id:"d293",n:9,regions:"ABBBBCCCCABDDBBBBCDDDBBBEECFFDDBBBEEFDDDGGBEEFFFDGGBHEFFHHHIHHHHFFHHHHHHHHHHHHHHH",solution:[7,0,2,6,4,8,5,1,3],difficulty:3},
+{id:"d294",n:7,regions:"AAABBBBCADDDDBCAADDEBAAAFFEBAFFFFFFAAFFFFFAAAFFGG",solution:[4,2,0,5,3,1,6],difficulty:2},
+{id:"d295",n:9,regions:"AAAAABBBBAAAAAAAABAAAAAACBBDAAACCCCCDEECCFFFFDEEEGGFHFDDEEEGEHHDDEIEGEEHDDIIEEEEE",solution:[5,1,6,0,7,4,2,8,3],difficulty:4},
+{id:"d296",n:9,regions:"AABCCCCCDABBBBCCDDAABEBBCDFGGEEEECDDGGGEEEEEDHGIEIIIDDHGIEIIDDDHGIIIIIIIGGIIIIIII",solution:[1,4,8,6,2,7,3,0,5],difficulty:2},
+{id:"d297",n:8,regions:"AAAAAAAABAAAAACABAAADCCABEEADDFAEEEEDDFDEEEDDDDDEEEDDDGHEEEDGGGG",solution:[2,0,5,1,6,3,7,4],difficulty:2},
+{id:"d298",n:8,regions:"ABBBBCCCAAABBCCCBBBBBCCCBBDDBBCCBBEDBBFGBBEEEEFGBEEEEGGGBBEEHHGG",solution:[0,5,1,3,6,2,7,4],difficulty:3},
+{id:"d299",n:8,regions:"AAAAABBBCCCBABBBCCCBBBDBCBBBEEDDCFGGGGGGCFHGGHHHFFHHHHHHFFFHHHHH",solution:[1,3,6,4,7,0,5,2],difficulty:2},
+{id:"d300",n:9,regions:"ABBBCCCCCAAACCCCCCAAADDCCCCAAADDCCCEAAAADDCCEAFAAADDDEFFFGGEEDEFHHEEEEEEFHHHHHIEE",solution:[3,7,0,8,5,1,4,2,6],difficulty:2},
+{id:"d301",n:9,regions:"AAABCCCCCAAACCDDCCAEAECCDDCEEEEECDDDEEEEECDFDEEEEEEDFGHEEIIIDGGHHEEIIIIGEEEEEIIII",solution:[3,1,4,6,2,7,0,8,5],difficulty:4},
+{id:"d302",n:8,regions:"AAAAAAABCADDAABBCAAAAAAECCCCAAAEFCCCCAEEFCCCAAEEFGGGEEEEFFFEEHHE",solution:[7,2,4,1,6,0,3,5],difficulty:2},
+{id:"d303",n:8,regions:"AAAAAAAABAACCADABAACDDDABBBBDDAAEBFDDDGGEBHDHDDGEEHHHHDDHHHHDDDD",solution:[6,4,0,5,2,7,1,3],difficulty:2},
+{id:"d304",n:8,regions:"AABCCCCCDABCECECDBBEEEEFDGBBFFFFDGGGFFFFDDDGDFDFDDDDDFDFDHHHDDDD",solution:[0,7,4,2,5,3,6,1],difficulty:5},
+{id:"d305",n:8,regions:"AAAABBBBAAAAAAABCAAAADDDCCDAADEECCDDDDDECCDDFFDECCGGGFFECGGHHFFF",solution:[1,7,0,6,3,5,2,4],difficulty:4},
+{id:"d306",n:8,regions:"ABBBBCCCAACCCCCCDDECEEECDEEEECCCEEEEFFFFEEGEFFHFHHGFFFHHHHHHHHHH",solution:[4,1,7,0,3,5,2,6],difficulty:3},
+{id:"d307",n:7,regions:"AAAAAAAAAABACCAAABAACDEBBBACEEFFBCCEEFFBGGEEEFFFG",solution:[4,6,3,0,2,5,1],difficulty:4},
+{id:"d308",n:7,regions:"AAAABBBCCDAAEBCCDAFEBCCDDFFFDDDDFFFDDDDDFFGGDDFFF",solution:[6,3,5,1,4,2,0],difficulty:3},
+{id:"d309",n:8,regions:"AAABBCCCDEABBCCCDEBBBBCCDDBBBBCCDBBBBBCCDDDFFBCCDDDGGBCHDDGGBBCH",solution:[2,6,1,5,0,4,7,3],difficulty:3},
+{id:"d310",n:8,regions:"AAAAAAAABBAAAACADEFFGACADEFEGGCGDEEEGGGGEEGEGGGHGGGGGHHHGGGGGHHH",solution:[5,1,6,2,0,3,7,4],difficulty:4},
+{id:"d311",n:9,regions:"AAAAAAAAAAABAACAAAADBBBCAEEADFBBCCCEADFFBCGGGAHFFBBGGGHHHHGGGGGHHHHHHHHGHHHHHIGGG",solution:[4,2,8,6,1,3,7,0,5],difficulty:3},
+{id:"d312",n:7,regions:"ABBBACCABAAACCAAAAACCAAADDCDAAEDDDDEEEFGDGEEFFGGG",solution:[1,5,0,4,2,6,3],difficulty:4},
+{id:"d313",n:8,regions:"AABCCCCDEABBBCDDAABACCDDAAAAACCFAGGAHCFFAAGHHFFFAGGGGFFFGGGFFFFF",solution:[7,0,2,6,4,1,3,5],difficulty:4},
+{id:"d314",n:9,regions:"AAABBBCDDAABBBBCDDAAABBDDDEAAAABDFFEAAGDDDDFFAGGHHHHHFAAGHIIHHHAAGGIIHHHAAAIIIIII",solution:[6,2,8,5,7,1,3,0,4],difficulty:3},
+{id:"d315",n:9,regions:"AABCCCCCCBBBCCCDDEBBBFFDDEEGBBBFBEEEGGGBBBHHEGBBBBEEEEGGGBBBBEEEGGBBIEEEEEEEEEEEE",solution:[1,3,6,4,7,2,0,5,8],difficulty:3},
+{id:"d316",n:8,regions:"ABBBBBCCAABBBBBCDDDBBBBCEDDDDDBCDDDDFDBBDDDDFGBBDHHDGGBBHHHHHHBB",solution:[7,1,6,0,4,2,5,3],difficulty:3},
+{id:"d317",n:7,regions:"AAAAABCAAAAABCDAAAAACDDADAECFDDDDEEFGDEEEEGGDDEEE",solution:[5,2,6,3,0,4,1],difficulty:3},
+{id:"d318",n:9,regions:"AAAAABBBBACADAABBBCCADAABBBCCDDDABBBCEDFDDBDBEEFFDDDDDFFFDDDDGGFHHDDIIDGHHHDDDDDG",solution:[7,5,0,4,1,3,8,6,2],difficulty:4},
+{id:"d319",n:8,regions:"AAAAABBBAAAAAAAAAAACCCCDEAAAAADDEAFFFDGDFFFFDDDDFFFFDHDDFFFFDHDD",solution:[7,1,3,0,6,4,2,5],difficulty:3},
+{id:"d320",n:7,regions:"AABBBBBAACCBDBACCCCDBAAAACDBEEACCDDEEFCCCDEEFFCCG",solution:[4,1,3,5,0,2,6],difficulty:3},
+{id:"d321",n:9,regions:"AAABBCCCCAAAABCCDCAEEADCCDCDDEADDCDDDDEDDDDDDDDDDFFFFFDDDFFFGFFHHFFGGGFFHIIFGFFFF",solution:[7,4,1,3,5,8,6,0,2],difficulty:3},
+{id:"d322",n:7,regions:"AAAAAAAABCDDDABBCEDDABFFEDDABBFEGDDBBFEGGDEEEEEED",solution:[6,2,5,1,4,0,3],difficulty:2},
+{id:"d323",n:9,regions:"ABBCCCCCCAAAACCDCCEAFGGDDDCEAFFGGGDDEAFFHHDDDEIFFHHHHHEIIFFFHHHFIFFFHHHHFFFFHHHHH",solution:[1,3,8,5,7,0,2,4,6],difficulty:4},
+{id:"d324",n:7,regions:"ABBCCCCABCCCDCABBECDDAAAAFFDFAFFFDDFFFFFDGFFFFFDG",solution:[4,1,3,0,5,2,6],difficulty:3},
+{id:"d325",n:8,regions:"AABBBCCCDABCCCCCDDDCCCCCDDDEEECCDDDDFCCCDDGGFCCCDDDGHHHCDDDGGGHC",solution:[0,2,7,5,1,4,6,3],difficulty:3},
+{id:"d326",n:8,regions:"AABCCDDDEABCCCFDEEBCCFFDEEEEFFDDEEEEDDDDGHEGGDDDGHHGGDDDGGGGGGGD",solution:[0,4,2,5,3,7,1,6],difficulty:4},
+{id:"d327",n:9,regions:"ABBCCDDDDABBCCCCDDAABBDDCDDEEEFDDDDGEFFFFDDGGFFFFFFDDHFHHHFHHHHFFHHFHHHHFFIHHHHHH",solution:[0,5,3,1,8,6,4,7,2],difficulty:4},
+{id:"d328",n:8,regions:"AABBBBBBACCDBBBBDDDDDBBBDDEDDDBBDEEEEEBBFFGEEEBHFFGGEEBHFFFGHHHH",solution:[0,2,4,7,5,1,3,6],difficulty:4},
+{id:"d329",n:9,regions:"ABBCCCCCDABBCCEEDDFFCCGGEEDFFGGGEEEDGGGGGGGEDGGGGGHEEDGGGHHHHDDIIIIIIHDHIIIIIHHHH",solution:[2,0,3,1,4,6,8,5,7],difficulty:5},
+{id:"d330",n:8,regions:"AABBCCCCDACCCCECAAACAEECAAAAAEEEAFGAAAAEAFGGHEEEFFFHHEEEHHHHHHEE",solution:[3,0,7,4,2,6,1,5],difficulty:3},
+{id:"d331",n:7,regions:"AAABBBCDADBBDCDDDDDDCDDEEEDCFFGGEDCFEEEECCFFFCCCC",solution:[5,1,3,6,2,4,0],difficulty:3},
+{id:"d332",n:9,regions:"ABBBCCCCDAABBBBBCDEEBBCCCCDBBBBBFGDDBBBBFFGDGBFFFFFGGGBFHHFIIGIFFHHFIIIIFHHHFIIII",solution:[0,7,1,8,3,6,4,2,5],difficulty:3},
+{id:"d333",n:8,regions:"AABBCAAAAAAACAAAAADAAAAAADDDDAEEDDDDDAAEFDDFDDDEFFFFGHEEFFGGGHHE",solution:[2,4,6,1,7,0,5,3],difficulty:2},
+{id:"d334",n:8,regions:"ABBBBBCCADDBEBBFDDDGEBBFDDGGEBBFDDGEEFFFDDGGFFHFDDGGFHHHDDDGFFFH",solution:[7,0,5,1,3,6,2,4],difficulty:2},
+{id:"d335",n:8,regions:"ABBBBBBBAABBCCCBAACCCDCBAAAEEDCFAAEEEDDEAAGEEEEEAAGGGHEEAAHHHHHE",solution:[1,4,0,7,5,2,6,3],difficulty:3},
+{id:"d336",n:7,regions:"AABBBBCAAADBCCAAADBDEAADDDDEADDDDFEAFFFFFEFFGFFEE",solution:[3,5,0,6,1,4,2],difficulty:2},
+{id:"d337",n:7,regions:"AABBBCCAADBCCCAADCCCEFADGCCEFADGCEEEGGGEEEEEEEEEE",solution:[4,1,5,2,0,3,6],difficulty:3},
+{id:"d338",n:8,regions:"AAAAAABBAAAACCCBDAEAAACBDAEEAFFBDDEEEEFBGEEEEFFFGHHEFFEFGEEEEEEF",solution:[7,5,3,6,1,4,2,0],difficulty:4},
+{id:"d339",n:8,regions:"AAAABBBCAADDDBBCEADDBBBCEADFBBBBEEEFBBBBEEEEGBBBEHEEGBBEHHHEEEEE",solution:[0,2,7,3,6,4,1,5],difficulty:5},
+{id:"d340",n:7,regions:"AABBBBBACDBBBBACDEEEBFCCCCEBFCEEEEEFCECCCCCCCCCGC",solution:[1,4,2,0,6,3,5],difficulty:3},
+{id:"d341",n:8,regions:"AAAABBBBACCCCBBBAADCBBBEAADFFBEEADDFBBBBDDDDBBBBDDDGDBHBDDDDDBHH",solution:[0,2,7,4,1,5,3,6],difficulty:3},
+{id:"d342",n:9,regions:"AAAABBBBBAAABBACBBAAAAAACCCAAADAAAACADDDAAEECFFDGGAEECFFGGGGEHFFFFGFFEFFIIFFFFFFF",solution:[5,1,8,3,6,4,7,2,0],difficulty:4},
+{id:"d343",n:8,regions:"AAAAAAAAAABABBACABBBBBAABBBDDBBBBEEDBBFFBEBGGGHHBBBGGGHHGGGGHHHH",solution:[0,7,2,4,6,1,3,5],difficulty:2},
+{id:"d344",n:8,regions:"AAABBBBBCCADDDDBEEDDFFDBEDDDGDDBEEEHGDBBEHHHGDDBEHHGGDBBEEGGGDDB",solution:[2,0,5,7,3,6,4,1],difficulty:3},
+{id:"d345",n:8,regions:"ABBACDDDAAAACCDDAAAAACCEAFACCCCEAFGGCHCEAFFFFHEEAAFEFEEEAFFEEEEE",solution:[1,7,0,6,3,5,2,4],difficulty:4},
+{id:"d346",n:9,regions:"ABBBBBCCCABBDCCCCCABBDEECCCAABDFEECCAAADEEECCGGAEEECCCGGAHHECCCGGHHEEICCGHHIIIIIC",solution:[5,3,0,4,6,1,8,2,7],difficulty:2},
+{id:"d347",n:8,regions:"AABCCCDEAABCDDDEACCCCEEECCFCEEEGFFFFEFEGFFFHHFGGFFFHFFGGFFFFFFFF",solution:[2,5,0,3,6,4,7,1],difficulty:4},
+{id:"d348",n:7,regions:"AABBBBBABBABBBAAAACCBADDAEBBADDDEBFAAADFFFAAGDDDF",solution:[3,0,5,1,4,6,2],difficulty:2},
+{id:"d349",n:9,regions:"AAAABBBBCAAADBDBCCADDDDDBCCADDDEEBBCAAAFFFCCCAFFFCCCCCGFFFHHCCCGIIFFHHHCGGIHHHCCC",solution:[7,5,8,4,1,3,0,6,2],difficulty:4},
+{id:"d350",n:9,regions:"AAAABBBBCADDAAEBCCDDDAAEECCDAAAACCCCDAFFAACGGFHFFAAAAGFHFFFFAAIFHHFAAAIIFFFFFAAAI",solution:[4,2,5,3,6,8,1,7,0],difficulty:4},
+{id:"d351",n:8,regions:"ABBBBBBBABBCCCBBAADCCEEBDDDDCEEBFFDDCCEBGFFFFCEBGFHHEEEBFFFHEEEB",solution:[7,5,1,6,2,4,0,3],difficulty:2},
+{id:"d352",n:7,regions:"AAABBBBCABBBBDCAABEBDCAAAEEDEFEEEEDEEEEEDDEGGEEEE",solution:[5,0,6,3,1,4,2],difficulty:2},
+{id:"d353",n:8,regions:"AAAABBBBAACCCBBBAACCCBDBAAAAAEDBAAAFFEDBAGGGFEDBAHHGFFBBAAGGFFFB",solution:[7,2,6,0,5,3,1,4],difficulty:4},
+{id:"d354",n:8,regions:"AAAAABBBCADAABBBCAAABBBBCEEABBBBCCEBBFFBCEEEEBBBCCCGGGBBHHGGGGBB",solution:[4,2,7,0,6,3,5,1],difficulty:2},
+{id:"d355",n:9,regions:"AAAAAABBBACAAAAABDCCACAABBDCCCCAABDDCCECCABBBCCCFCABBGCFFFCFFBGCHFFFFFBBHHHFFIIBB",solution:[6,4,0,7,2,8,3,1,5],difficulty:2},
+{id:"d356",n:8,regions:"AABBBBCCBBBCCCCBBBBBBBCBBDEBBBBBBDEEEEEEDDDFEEGGDHDFEEEGDHHFFFGG",solution:[0,6,4,1,5,3,7,2],difficulty:5},
+{id:"d357",n:9,regions:"ABBCCDDEEABCCCCCCEFBBCBBBBEFFBBBEEEEFFBGBBEEEFHFGGBBEBFFFGGBBBBFFGGGGBBIFFFFFFIII",solution:[6,0,3,7,5,1,4,8,2],difficulty:2},
+{id:"d358",n:7,regions:"AAAAABBAAAAAAAACCCADDAACCDDDCCCCCEECFCCGGGFFCGGGG",solution:[5,0,2,4,6,1,3],difficulty:4},
+{id:"d359",n:7,regions:"AAAABBBAAAAABCDDAEAFCDDAEFFCDDEEEECDDDDGGGDDDGGGG",solution:[5,1,6,4,2,0,3],difficulty:4},
+{id:"d360",n:9,regions:"AAAABBCCCAADBBCEECAADBBCCCCAADDBBBBCAADDCCCCCFADFFFCGHFAFFFFFGHFAFFFFIHHFFFIIIIIH",solution:[1,6,4,2,5,7,0,8,3],difficulty:3},
+{id:"d361",n:8,regions:"AABCCCCCDDBCCCCCDDBCDCCEDDDDDCFEDGGDDFFEDFFFFFHFDDDDDFFFDDDFFFFF",solution:[0,4,2,7,1,6,3,5],difficulty:3},
+{id:"d362",n:8,regions:"AAAAABBBAAACBBDBEAACDDDBEAADDDDDEEDDEEEEEEEEEEEFEEGGHHHFEEEGGHFF",solution:[6,3,1,4,0,7,2,5],difficulty:3},
+{id:"d363",n:8,regions:"AAABBBACAAABAAACDDAAACCCAAAACCCEAAAFGGGEAAAHHHGEHHHHGGGEHEEEEEEE",solution:[4,2,0,5,3,6,1,7],difficulty:4},
+{id:"d364",n:8,regions:"ABBBBCCDABEBBCDDAEEFFCDGAAEEFGGGAAEEGGGGAAAEGGGGEHHEEEGGEEEEEEEE",solution:[5,3,6,4,1,7,2,0],difficulty:4},
+{id:"d365",n:9,regions:"AAAAAAAAABBACCAAAAAAACCCCDDAACCCCEDEAACCCCEDEAFGGCCEEEAFGHHCCCEAFGGGCCCCAAIIICCCC",solution:[6,0,7,5,8,2,4,1,3],difficulty:3},
+{id:"d366",n:8,regions:"AAAABBBBACABBBBBACAABBDDACEEEBDDFCEFDDDDFFFFFFDDFFGFDFDDHHGFDDDD",solution:[3,6,1,4,7,5,2,0],difficulty:3}
+] };
+  if (typeof module !== 'undefined') module.exports = root.DOGGY_LEVELS;
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script>
+/* Doggydoku engine — rules, solution counter, human-style solver and hints.
+ * Loaded as a classic <script> (window.DoggyEngine) or via require().
+ * Cell index = r * n + c. Region index 0 = 'A'.
+ */
+(function (root) {
+  'use strict';
+
+  var CACHE = typeof WeakMap !== 'undefined' ? new WeakMap() : null;
+  var KIND_NAME = ['橫列', '直行', '區塊'];
+
+  // ---------------------------------------------------------------- prep
+  function prep(p) {
+    var info = CACHE && CACHE.get(p);
+    if (info && info.src === p.regions && info.n === p.n) return info;
+    var n = p.n, N = n * n, i, j, r, c, g;
+    var reg = new Array(N);
+    var regionCells = [];
+    for (i = 0; i < n; i++) regionCells.push([]);
+    for (i = 0; i < N; i++) {
+      g = p.regions.charCodeAt(i) - 65;
+      reg[i] = g;
+      (regionCells[g] || (regionCells[g] = [])).push(i);
+    }
+    // units: rows 0..n-1, cols n..2n-1, regions 2n..3n-1
+    var units = [];
+    for (r = 0; r < n; r++) {
+      var rc = [];
+      for (c = 0; c < n; c++) rc.push(r * n + c);
+      units.push({ kind: 0, cells: rc });
+    }
+    for (c = 0; c < n; c++) {
+      var cc = [];
+      for (r = 0; r < n; r++) cc.push(r * n + c);
+      units.push({ kind: 1, cells: cc });
+    }
+    for (g = 0; g < n; g++) units.push({ kind: 2, cells: regionCells[g] || [] });
+
+    var excl = new Array(N);
+    var attack = new Uint8Array(N * N);
+    for (i = 0; i < N; i++) {
+      r = (i / n) | 0; c = i % n;
+      var base = i * N;
+      for (j = 0; j < n; j++) { attack[base + r * n + j] = 1; attack[base + j * n + c] = 1; }
+      var cells = regionCells[reg[i]];
+      for (j = 0; j < cells.length; j++) attack[base + cells[j]] = 1;
+      for (var dr = -1; dr <= 1; dr++) for (var dc = -1; dc <= 1; dc++) {
+        var rr = r + dr, c2 = c + dc;
+        if (rr >= 0 && rr < n && c2 >= 0 && c2 < n) attack[base + rr * n + c2] = 1;
+      }
+      attack[base + i] = 0;
+      var list = [];
+      for (j = 0; j < N; j++) if (attack[base + j]) list.push(j);
+      excl[i] = list;
+    }
+    info = { src: p.regions, n: n, N: N, reg: reg, regionCells: regionCells, units: units, excl: excl, attack: attack };
+    if (CACHE) CACHE.set(p, info);
+    return info;
+  }
+
+  // ---------------------------------------------------------- basic API
+  function cellsOfRegion(p) {
+    var rc = prep(p).regionCells, out = [];
+    for (var i = 0; i < rc.length; i++) out.push((rc[i] || []).slice());
+    return out;
+  }
+
+  function isSolutionCell(p, r, c) {
+    return p.solution[r] === c;
+  }
+
+  function exclusionsFor(p, r, c) {
+    return prep(p).excl[r * p.n + c].slice();
+  }
+
+  function isComplete(p, dogs) {
+    var n = p.n;
+    if (!dogs || dogs.length !== n) return false;
+    var seen = new Array(n);
+    for (var i = 0; i < n; i++) {
+      var d = dogs[i], r = (d / n) | 0;
+      if (d !== (d | 0) || d < 0 || d >= n * n) return false;
+      if (seen[r] || p.solution[r] !== d % n) return false;
+      seen[r] = true;
+    }
+    return true;
+  }
+
+  function countSolutions(p, limit) {
+    if (limit == null) limit = 2;
+    var info = prep(p), n = info.n, reg = info.reg, count = 0;
+    function rec(r, colMask, regMask, prev) {
+      if (r === n) { count++; return; }
+      var base = r * n;
+      for (var c = 0; c < n; c++) {
+        if ((colMask >> c) & 1) continue;
+        if (c - prev <= 1 && prev - c <= 1) continue;
+        var g = reg[base + c];
+        if ((regMask >> g) & 1) continue;
+        rec(r + 1, colMask | (1 << c), regMask | (1 << g), c);
+        if (count >= limit) return;
+      }
+    }
+    if (limit > 0) rec(0, 0, 0, -9);
+    return count;
+  }
+
+  // ------------------------------------------------------ human solver
+  function makeState(info, dogs, crosses) {
+    var st = { cand: new Uint8Array(info.N), done: new Uint8Array(3 * info.n), placed: 0 };
+    var i;
+    for (i = 0; i < info.N; i++) st.cand[i] = 1;
+    if (dogs) for (i = 0; i < dogs.length; i++) placeDog(info, st, dogs[i]);
+    if (crosses) for (i = 0; i < crosses.length; i++) st.cand[crosses[i]] = 0;
+    return st;
+  }
+
+  function placeDog(info, st, d) {
+    var n = info.n, e = info.excl[d];
+    st.cand[d] = 0;
+    for (var i = 0; i < e.length; i++) st.cand[e[i]] = 0;
+    st.done[(d / n) | 0] = 1;
+    st.done[n + (d % n)] = 1;
+    st.done[2 * n + info.reg[d]] = 1;
+    st.placed++;
+  }
+
+  function inUnit(info, x, u) {
+    var n = info.n;
+    if (u < n) return ((x / n) | 0) === u;
+    if (u < 2 * n) return x % n === u - n;
+    return info.reg[x] === u - 2 * n;
+  }
+
+  function popcount(m) {
+    var k = 0;
+    while (m) { m &= m - 1; k++; }
+    return k;
+  }
+
+  function step(type, cells, because, technique, level, text) {
+    return { type: type, cells: cells, because: because, technique: technique, level: level, text: text };
+  }
+
+  /* Find the simplest available deduction. maxLevel (1..5) caps the technique.
+   * Returns null if nothing applies (stuck or contradiction). */
+  function findStep(info, st, maxLevel) {
+    var n = info.n, N = info.N, cand = st.cand, reg = info.reg, units = info.units;
+    var U = 3 * n, u, i, j, x, L, out;
+    if (!maxLevel) maxLevel = 5;
+
+    var lists = new Array(U);
+    for (u = 0; u < U; u++) {
+      if (st.done[u]) { lists[u] = null; continue; }
+      var cells = units[u].cells;
+      L = [];
+      for (i = 0; i < cells.length; i++) if (cand[cells[i]]) L.push(cells[i]);
+      if (L.length === 0) return null; // contradiction: no place left
+      lists[u] = L;
+    }
+
+    // --- T2: single candidate (regions first, then rows, then columns)
+    for (i = 0; i < U; i++) {
+      u = i < n ? 2 * n + i : i - n;
+      L = lists[u];
+      if (L && L.length === 1) {
+        var k2 = units[u].kind;
+        return step('dog', [L[0]], units[u].cells.slice(), 'T2', 1,
+          '這' + (k2 === 2 ? '個區塊' : k2 === 0 ? '一橫列' : '一直行') + '只剩下一格可以放狗狗了。');
+      }
+    }
+    if (maxLevel < 2) return null;
+
+    // --- T3: region locked into one row/column, and the reverse
+    var g, line, same, uLine;
+    for (g = 0; g < n; g++) {
+      L = lists[2 * n + g];
+      if (!L) continue;
+      for (var axis = 0; axis < 2; axis++) {
+        line = axis === 0 ? (L[0] / n) | 0 : L[0] % n;
+        same = true;
+        for (i = 1; i < L.length && same; i++) if ((axis === 0 ? (L[i] / n) | 0 : L[i] % n) !== line) same = false;
+        if (!same) continue;
+        uLine = axis === 0 ? line : n + line;
+        out = [];
+        for (i = 0; i < lists[uLine].length; i++) if (reg[lists[uLine][i]] !== g) out.push(lists[uLine][i]);
+        if (out.length) {
+          return step('cross', out, L.slice(), 'T3', 2,
+            '這個區塊能放狗狗的格子全都在同一' + KIND_NAME[axis] + '，所以這一' + KIND_NAME[axis] + '上其他區塊的格子都不能放了。');
+        }
+      }
+    }
+    for (u = 0; u < 2 * n; u++) {
+      L = lists[u];
+      if (!L) continue;
+      g = reg[L[0]];
+      same = true;
+      for (i = 1; i < L.length && same; i++) if (reg[L[i]] !== g) same = false;
+      if (!same) continue;
+      var RL = lists[2 * n + g];
+      out = [];
+      for (i = 0; i < RL.length; i++) if (!inUnit(info, RL[i], u)) out.push(RL[i]);
+      if (out.length) {
+        return step('cross', out, L.slice(), 'T3', 2,
+          '這一' + KIND_NAME[units[u].kind] + '能放狗狗的格子全都在同一個區塊裡，所以這個區塊在其他' +
+          KIND_NAME[units[u].kind] + '的格子都不能放了。');
+      }
+    }
+    if (maxLevel < 3) return null;
+
+    // --- T4: a cell that would wipe out every candidate of some unit
+    var order = [];
+    for (u = 0; u < U; u++) if (lists[u]) order.push(u);
+    order.sort(function (a, b) { return lists[a].length - lists[b].length || a - b; });
+    var attack = info.attack;
+    for (i = 0; i < order.length; i++) {
+      u = order[i]; L = lists[u];
+      out = [];
+      for (x = 0; x < N; x++) {
+        if (!cand[x] || inUnit(info, x, u)) continue;
+        var all = true, bx = x * N;
+        for (j = 0; j < L.length; j++) if (!attack[bx + L[j]]) { all = false; break; }
+        if (all) out.push(x);
+      }
+      if (out.length) {
+        var kn = KIND_NAME[units[u].kind];
+        return step('cross', out, L.slice(), 'T4', 3,
+          '如果在這裡放狗狗，亮起來的那' + (units[u].kind === 2 ? '個區塊' : '一' + kn) +
+          '就完全沒地方放狗狗了，所以這裡不能放。');
+      }
+    }
+    if (maxLevel < 4) return null;
+
+    // --- T5: k units squeezed into k units of another kind (k = 2, 3)
+    // masks: for each active unit, which rows / cols / regions its candidates touch
+    var mRow = new Array(U), mCol = new Array(U), mReg = new Array(U);
+    for (u = 0; u < U; u++) {
+      L = lists[u];
+      if (!L) continue;
+      var a = 0, b = 0, d = 0;
+      for (i = 0; i < L.length; i++) { a |= 1 << ((L[i] / n) | 0); b |= 1 << (L[i] % n); d |= 1 << reg[L[i]]; }
+      mRow[u] = a; mCol[u] = b; mReg[u] = d;
+    }
+    // [srcBase, tgtBase, masks]
+    var cases = [
+      [2 * n, 0, mRow],   // regions -> rows
+      [2 * n, n, mCol],   // regions -> cols
+      [0, 2 * n, mReg],   // rows -> regions
+      [n, 2 * n, mReg]    // cols -> regions
+    ];
+    var maxK = maxLevel >= 5 ? 3 : 2;
+    for (var k = 2; k <= maxK; k++) {
+      for (var ci = 0; ci < cases.length; ci++) {
+        var sb = cases[ci][0], tb = cases[ci][1], masks = cases[ci][2];
+        var act = [];
+        for (i = 0; i < n; i++) if (lists[sb + i] && popcount(masks[sb + i]) <= k) act.push(sb + i);
+        if (act.length < k) continue;
+        var res = null;
+        for (var i1 = 0; i1 < act.length && !res; i1++) {
+          for (var i2 = i1 + 1; i2 < act.length && !res; i2++) {
+            var m2 = masks[act[i1]] | masks[act[i2]];
+            if (k === 2) {
+              if (popcount(m2) === 2) res = t5(info, st, lists, [act[i1], act[i2]], m2, tb);
+            } else {
+              if (popcount(m2) > 3) continue;
+              for (var i3 = i2 + 1; i3 < act.length && !res; i3++) {
+                var m3 = m2 | masks[act[i3]];
+                if (popcount(m3) === 3) res = t5(info, st, lists, [act[i1], act[i2], act[i3]], m3, tb);
+              }
+            }
+          }
+        }
+        if (res) {
+          var sn = KIND_NAME[units[sb].kind], tn = KIND_NAME[units[tb].kind];
+          var text = sb === 2 * n
+            ? '這 ' + k + ' 個區塊能放狗狗的格子，全都擠在 ' + k + ' 個' + tn + '裡，這 ' + k + ' 個' + tn +
+              '的狗狗一定是它們的，所以' + tn + '上其他區塊的格子都不能放了。'
+            : '這 ' + k + ' 個' + sn + '能放狗狗的格子，全都落在 ' + k + ' 個區塊裡，這 ' + k +
+              ' 個區塊的狗狗一定在這幾個' + sn + '上，所以區塊裡其他的格子都不能放了。';
+          return step('cross', res.out, res.because, 'T5', k === 2 ? 4 : 5, text);
+        }
+      }
+    }
+    return null;
+  }
+
+  function t5(info, st, lists, src, tmask, tb) {
+    var n = info.n, out = [], because = [], i, j, t, L;
+    for (t = 0; t < n; t++) {
+      if (!((tmask >> t) & 1)) continue;
+      L = lists[tb + t];
+      if (!L) continue;
+      for (i = 0; i < L.length; i++) {
+        var inside = false;
+        for (j = 0; j < src.length; j++) if (inUnit(info, L[i], src[j])) { inside = true; break; }
+        if (!inside) out.push(L[i]);
+      }
+    }
+    if (!out.length) return null;
+    for (j = 0; j < src.length; j++) because = because.concat(lists[src[j]]);
+    return { out: out, because: because };
+  }
+
+  /* Solve from an empty board with deduction only.
+   * → { solved, level (1..5, hardest technique needed), steps, hardSteps, score, counts, dogs } */
+  function solveHuman(p, maxLevel) {
+    var info = prep(p), st = makeState(info), n = info.n;
+    var counts = [0, 0, 0, 0, 0, 0], level = 0, steps = 0, dogs = [];
+    var W = [0, 1, 3, 6, 12, 20], score = 0, guard = info.N * 4;
+    while (st.placed < n && guard-- > 0) {
+      var s = findStep(info, st, maxLevel);
+      if (!s) break;
+      steps++; counts[s.level]++; score += W[s.level];
+      if (s.level > level) level = s.level;
+      if (s.type === 'dog') { placeDog(info, st, s.cells[0]); dogs.push(s.cells[0]); }
+      else for (var i = 0; i < s.cells.length; i++) st.cand[s.cells[i]] = 0;
+    }
+    return { solved: st.placed === n, level: level, steps: steps, hardSteps: steps - counts[1],
+      score: score, counts: counts, dogs: dogs };
+  }
+
+  // -------------------------------------------------------------- hints
+  /* state = { dogs:[idx…], crosses:[idx…] }.
+   * opts.autoExclude = true → treat T1 (cells excluded by placed dogs) as already
+   * known, never emit T1 hints (for UIs that draw those crosses automatically
+   * without storing them in state.crosses). */
+  function nextHint(p, state, opts) {
+    var info = prep(p), n = info.n, N = info.N, i, j, d;
+    var sol = p.solution;
+    var isDog = new Uint8Array(N), isCross = new Uint8Array(N);
+    var dogs = [], crosses = [];
+    var sd = (state && state.dogs) || [], sc = (state && state.crosses) || [];
+    for (i = 0; i < sd.length; i++) {
+      d = sd[i];
+      if (d >= 0 && d < N && !isDog[d] && sol[(d / n) | 0] === d % n) { isDog[d] = 1; dogs.push(d); }
+    }
+    if (dogs.length === n) return null;
+
+    var wrong = [];
+    for (i = 0; i < sc.length; i++) {
+      d = sc[i];
+      if (!(d >= 0 && d < N) || isDog[d] || isCross[d]) continue;
+      isCross[d] = 1;
+      if (sol[(d / n) | 0] === d % n) wrong.push(d); else crosses.push(d);
+    }
+    if (wrong.length) {
+      return { type: 'fix', cells: wrong, because: [], technique: 'fix',
+        text: wrong.length > 1 ? '這幾格其實可以放狗狗喔，先把叉叉擦掉吧。' : '這一格其實可以放狗狗喔，先把叉叉擦掉吧。' };
+    }
+
+    // T1: cells ruled out by a placed dog that the player has not crossed yet
+    if (!(opts && opts.autoExclude)) {
+      for (i = 0; i < dogs.length; i++) {
+        var e = info.excl[dogs[i]], out = [];
+        for (j = 0; j < e.length; j++) if (!isCross[e[j]] && !isDog[e[j]]) out.push(e[j]);
+        if (out.length) {
+          return { type: 'cross', cells: out, because: [dogs[i]], technique: 'T1',
+            text: '這隻狗狗的同一橫列、同一直行、同一個區塊，還有牠身邊一圈的格子，都不能再放狗狗了。' };
+        }
+      }
+    }
+
+    var st = makeState(info, dogs, crosses);
+    var s = findStep(info, st, 5);
+    if (s) return { type: s.type, cells: s.cells, because: s.because, technique: s.technique, text: s.text };
+
+    for (i = 0; i < n; i++) {
+      d = i * n + sol[i];
+      if (!isDog[d]) {
+        return { type: 'dog', cells: [d], because: [], technique: 'reveal', text: '偷偷告訴你，這裡有一隻狗狗。' };
+      }
+    }
+    return null;
+  }
+
+  var DoggyEngine = {
+    cellsOfRegion: cellsOfRegion,
+    isSolutionCell: isSolutionCell,
+    exclusionsFor: exclusionsFor,
+    isComplete: isComplete,
+    countSolutions: countSolutions,
+    nextHint: nextHint,
+    // extras (used by tools/ and tests; not part of the UI contract)
+    solveHuman: solveHuman
+  };
+
+  root.DoggyEngine = DoggyEngine;
+  if (typeof module !== 'undefined') module.exports = DoggyEngine;
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script>
+/* Doggydoku 原創美術：9 種狗狗頭像與介面小圖示，全部 inline SVG symbol。
+   狗狗用固定的插畫色（不隨主題變），靠深色粗線在任何區塊色上都看得清楚。 */
+(function () {
+  var INK = "#2b2019";
+  var G = 'stroke="' + INK + '" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"';
+  var HEAD = "M10 37C10 22 20 15 32 15C44 15 54 22 54 37C54 51 44 58 32 58C20 58 10 51 10 37Z";
+  var MIRROR = 'transform="matrix(-1 0 0 1 64 0)"';
+
+  function eyes(dx, y, extra) {
+    var l = 32 - dx, r = 32 + dx;
+    return '<g stroke="none" fill="' + INK + '"><circle cx="' + l + '" cy="' + y + '" r="2.9"/><circle cx="' + r + '" cy="' + y + '" r="2.9"/></g>' + (extra || "");
+  }
+  function snout(y, color) {
+    color = color || INK;
+    return '<ellipse cx="32" cy="' + y + '" rx="4.4" ry="3.3" fill="' + INK + '" stroke="none"/>' +
+      '<path d="M32 ' + (y + 3) + 'v3q-3.5 4.5-7.5 1.5m7.5-1.5q3.5 4.5 7.5 1.5" fill="none" stroke="' + color + '" stroke-width="2.4"/>';
+  }
+  function both(d, fill, extra) {
+    var one = '<path d="' + d + '" fill="' + fill + '"/>' + (extra || "");
+    return one + "<g " + MIRROR + ">" + one + "</g>";
+  }
+  var POINTY = "M13 31L12 7L30 18Z";
+  var POINTY_IN = '<path d="M17 23L16.5 14L24 18.5Z" fill="#f6b7a8" stroke="none"/>';
+  var FLOPPY = "M15 20C4 22 3 41 9 49C15 51 18 42 19 29Z";
+
+  var dogs = [
+    { id: "husky", name: "哈士奇", art:
+      both(POINTY, "#6f7c8c", POINTY_IN) +
+      '<path d="' + HEAD + '" fill="#6f7c8c"/>' +
+      '<path d="M32 26C28 19 18 21 15.5 31C13 43 20 56.5 32 56.5C44 56.5 51 43 48.500 31C46 21 36 19 32 26Z" fill="#fff" stroke="none"/>' +
+      '<g fill="#8fd3f4" stroke-width="1.6"><circle cx="23" cy="35" r="3.6"/><circle cx="41" cy="35" r="3.6"/></g>' +
+      '<g fill="' + INK + '" stroke="none"><circle cx="23" cy="35" r="1.4"/><circle cx="41" cy="35" r="1.4"/></g>' +
+      snout(43) },
+    { id: "shiba", name: "柴犬", art:
+      both(POINTY, "#e8923a", '<path d="M17 23L16.500 14L24 18.500Z" fill="#fff3dd" stroke="none"/>') +
+      '<path d="' + HEAD + '" fill="#e8923a"/>' +
+      '<path d="M12.500 41C16 34 22 36 26 40C29 43 35 43 38 40C42 36 48 34 51.500 41C50 51 42 56.500 32 56.500C22 56.500 14 51 12.500 41Z" fill="#fff3dd" stroke="none"/>' +
+      '<g fill="#fff3dd" stroke="none"><circle cx="23" cy="27.500" r="2.300"/><circle cx="41" cy="27.500" r="2.300"/></g>' +
+      eyes(9, 34.500) + snout(43) },
+    { id: "mix", name: "黑色米克斯", art:
+      '<path d="' + POINTY + '" fill="#3a3532"/>' +
+      '<path d="M37 18C44 8 56 9 58 21C53 25 49 20 46 25Z" fill="#3a3532"/>' +
+      '<path d="' + HEAD + '" fill="#3a3532"/>' +
+      '<path d="M32 16.500C30.500 24 29 31 26 38C22 47 26 56.500 32 56.500C38 56.500 42 47 38 38C35 31 33.500 24 32 16.500Z" fill="#fff" stroke="none"/>' +
+      '<g fill="#fff" stroke="none"><circle cx="21.500" cy="34" r="4"/><circle cx="42.500" cy="34" r="4"/></g>' +
+      '<g fill="' + INK + '" stroke="none"><circle cx="22" cy="34.500" r="2.300"/><circle cx="42" cy="34.500" r="2.300"/></g>' +
+      snout(43) },
+    { id: "golden", name: "黃金獵犬", art:
+      '<path d="' + HEAD + '" fill="#ecb54a"/>' +
+      both(FLOPPY, "#c9872a") +
+      '<path d="M28 49.500h8v4a4 4 0 0 1-8 0z" fill="#f27c8d" stroke-width="2.200"/>' +
+      eyes(9, 33) + snout(42) },
+    { id: "dachshund", name: "臘腸", art:
+      '<path d="M16 32C16 19 24 13 32 13C40 13 48 19 48 32C48 48 42 60 32 60C22 60 16 48 16 32Z" fill="#7a4a2a"/>' +
+      both("M19 17C7 19 4 44 10 57C17 59 21 46 21 29Z", "#59321b") +
+      '<ellipse cx="32" cy="47" rx="9.500" ry="10.500" fill="#dba56b" stroke="none"/>' +
+      '<g fill="#dba56b" stroke="none"><circle cx="25" cy="24" r="2.200"/><circle cx="39" cy="24" r="2.200"/></g>' +
+      eyes(7, 31) + snout(44) },
+    { id: "poodle", name: "貴賓", art: (function () {
+      var c = [[32, 13, 9], [22, 18, 7.500], [42, 18, 7.500], [11, 33, 8], [12, 45, 7.500], [53, 33, 8], [52, 45, 7.500], [32, 38, 19]];
+      var s = c.map(function (k) { return '<circle cx="' + k[0] + '" cy="' + k[1] + '" r="' + k[2] + '"/>'; }).join("");
+      return '<g fill="#fff8ee" stroke-width="6">' + s + '</g><g fill="#fff8ee" stroke="none">' + s + "</g>" +
+        '<g fill="#f7b9c4" stroke="none"><circle cx="20" cy="43" r="3"/><circle cx="44" cy="43" r="3"/></g>' +
+        eyes(8, 36) + snout(44);
+    })() },
+    { id: "dalmatian", name: "大麥町", art:
+      '<path d="' + HEAD + '" fill="#fff"/>' +
+      both(FLOPPY, "#2b2019") +
+      '<g fill="' + INK + '" stroke="none"><ellipse cx="23" cy="33" rx="6.500" ry="7.500"/><circle cx="43" cy="23" r="3"/><circle cx="31" cy="21" r="2"/><circle cx="47" cy="45" r="2.400"/><circle cx="18" cy="48" r="2"/></g>' +
+      '<circle cx="23" cy="34" r="2.900" fill="#fff" stroke="none"/><circle cx="41" cy="34" r="2.900" fill="' + INK + '" stroke="none"/>' +
+      snout(43) },
+    { id: "schnauzer", name: "雪納瑞", art:
+      both("M13 28C9 17 14 9 21 10L29 18Z", "#646b73") +
+      '<path d="' + HEAD + '" fill="#8e959c"/>' +
+      eyes(9, 34.500) +
+      '<g fill="#fff" stroke-width="2.200"><path d="M13 31C17 21 26 22 30 28C25 28 21 30 19 34Z"/><path d="M51 31C47 21 38 22 34 28C39 28 43 30 45 34Z"/>' +
+      '<path d="M17 41C22 36 28 38 32 41C36 38 42 36 47 41C51 51 46 62 32 62C18 62 13 51 17 41Z" stroke-width="3"/></g>' +
+      snout(43) },
+    { id: "frenchie", name: "法鬥", art:
+      both("M12 30C7 15 11 4 18 4C25 5 29 14 28 22Z", "#d8b48a", '<path d="M15.500 24C13 15 15 9 18 9C21.500 10 23.500 15 23 21Z" fill="#f6b7a8" stroke="none"/>') +
+      '<path d="M8 39C8 25 18 18 32 18C46 18 56 25 56 39C56 52 46 58 32 58C18 58 8 52 8 39Z" fill="#ead0aa"/>' +
+      '<ellipse cx="32" cy="46.500" rx="14" ry="9.500" fill="#7a6154" stroke="none"/>' +
+      eyes(12, 34) + snout(42) }
+  ];
+
+  var icons = {
+    x: '<path d="M6 6.500C10 9 14 13.500 18 18M18 6C14 10 10 13.500 6 18" fill="none" stroke="currentColor" stroke-width="3.400" stroke-linecap="round"/>',
+    no: '<circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2.600"/><path d="M8 8l8 8M16 8l-8 8" fill="none" stroke="currentColor" stroke-width="2.800" stroke-linecap="round"/>',
+    heart: '<path d="M12 20.500C5 15.500 2.500 12 2.500 8.300C2.500 5.300 4.800 3.300 7.300 3.300C9.300 3.300 11 4.400 12 6.200C13 4.400 14.700 3.300 16.700 3.300C19.200 3.300 21.500 5.300 21.500 8.300C21.500 12 19 15.500 12 20.500Z" fill="var(--hf,currentColor)" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>',
+    bone: '<g transform="rotate(-40 12 12)"><g fill="currentColor"><circle cx="4.5" cy="9.2" r="3.4"/><circle cx="4.5" cy="14.8" r="3.4"/><circle cx="19.5" cy="9.2" r="3.4"/><circle cx="19.5" cy="14.8" r="3.4"/><rect x="4.5" y="8.4" width="15" height="7.2" rx="1"/></g><g fill="var(--bf,currentColor)"><circle cx="4.5" cy="9.2" r="1.7"/><circle cx="4.5" cy="14.8" r="1.7"/><circle cx="19.5" cy="9.2" r="1.7"/><circle cx="19.5" cy="14.8" r="1.7"/><rect x="4.5" y="10.1" width="15" height="3.8" rx="1"/></g></g>',
+    paw: '<g fill="currentColor"><ellipse cx="12" cy="16" rx="5.500" ry="4.500"/><ellipse cx="5" cy="10.500" rx="2.200" ry="2.900" transform="rotate(-18 5 10.500)"/><ellipse cx="9.500" cy="6" rx="2.200" ry="3"/><ellipse cx="14.500" cy="6" rx="2.200" ry="3"/><ellipse cx="19" cy="10.500" rx="2.200" ry="2.900" transform="rotate(18 19 10.500)"/></g>',
+    lock: '<rect x="5" y="10.500" width="14" height="10" rx="2.500" fill="currentColor"/><path d="M8 10.500V8a4 4 0 0 1 8 0v2.500" fill="none" stroke="currentColor" stroke-width="2.400"/>',
+    pause: '<g fill="currentColor"><rect x="6" y="5" width="4.200" height="14" rx="1.500"/><rect x="13.800" y="5" width="4.200" height="14" rx="1.500"/></g>',
+    play: '<path d="M8 5.500v13l11-6.500z" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>',
+    undo: '<path d="M9 5L4 10l5 5M4.500 10H14a5.500 5.500 0 0 1 0 11h-3" fill="none" stroke="currentColor" stroke-width="2.600" stroke-linecap="round" stroke-linejoin="round"/>',
+    back: '<path d="M14.500 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>',
+    gear: '<path d="M12 3l1.600 2.600 3-.700.700 3L20 9.500 18.800 12l1.200 2.500-2.700 1.600-.700 3-3-.700L12 21l-1.600-2.600-3 .700-.700-3L4 14.500 5.200 12 4 9.500l2.700-1.600.700-3 3 .700z" fill="none" stroke="currentColor" stroke-width="2.200" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.800" fill="currentColor"/>',
+    check: '<path d="M5 12.500l4.500 4.500L19 7" fill="none" stroke="currentColor" stroke-width="3.200" stroke-linecap="round" stroke-linejoin="round"/>',
+    clock: '<circle cx="12" cy="13" r="8" fill="none" stroke="currentColor" stroke-width="2.400"/><path d="M12 8.500V13l3 2M9.500 2.500h5" fill="none" stroke="currentColor" stroke-width="2.400" stroke-linecap="round"/>'
+  };
+
+  var out = '<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">';
+  dogs.forEach(function (d, i) {
+    out += '<symbol id="dog-' + i + '" viewBox="0 0 64 64"><g ' + G + ">" + d.art + "</g></symbol>";
+  });
+  Object.keys(icons).forEach(function (k) {
+    out += '<symbol id="i-' + k + '" viewBox="0 0 24 24">' + icons[k] + "</symbol>";
+  });
+  out += "</svg>";
+  out = out.replace(/(\.\d)00\b/g, "$1");
+
+  var holder = document.createElement("div");
+  holder.innerHTML = out;
+  document.body.insertBefore(holder.firstChild, document.body.firstChild);
+
+  window.DOGGY_ART = {
+    breeds: dogs.map(function (d) { return { id: d.id, name: d.name }; }),
+    dog: function (i, cls) { return '<svg class="dog ' + (cls || "") + '" viewBox="0 0 64 64" aria-hidden="true"><use href="#dog-' + (i % dogs.length) + '"/></svg>'; },
+    icon: function (name, cls) { return '<svg class="ic ' + (cls || "") + '" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-' + name + '"/></svg>'; }
+  };
+})();
+
+</script>
+<script>
+/* Doggydoku 介面。引擎（DoggyEngine）與題庫（DOGGY_LEVELS）由別的檔提供。 */
+(function () {
+  "use strict";
+  var E = window.DoggyEngine, L = window.DOGGY_LEVELS, ART = window.DOGGY_ART;
+  var $ = function (id) { return document.getElementById(id); };
+  var KEY = "doggydoku.v1";
+  var HEARTS = 3, HINTS = 3;
+  var EMPTY = 0, CROSS = 1, DOG = 2, WRONG = 3;
+  var EPOCH = new Date(2026, 9, 1);
+  var CLASS_NAMES = { 5: "幼幼班", 6: "小狗班", 7: "散步班", 8: "飛盤班", 9: "冠軍班" };
+  var DEMO = { n: 5, regions: "AABBCAABBBDABBBDDEEEDDEEE", solution: [4, 1, 3, 0, 2] };
+
+  /* ---------- 存檔 ---------- */
+  function blank() { return { campaign: {}, daily: {}, settings: { autoMark: true, sound: true }, seenHowto: false }; }
+  function loadSave() {
+    var d = blank();
+    try {
+      var o = JSON.parse(localStorage.getItem(KEY) || "null");
+      if (o && typeof o === "object") {
+        if (o.campaign && typeof o.campaign === "object") d.campaign = o.campaign;
+        if (o.daily && typeof o.daily === "object") d.daily = o.daily;
+        if (o.settings && typeof o.settings === "object") d.settings.autoMark = o.settings.autoMark !== false; d.settings.sound = o.settings.sound !== false;
+        d.seenHowto = !!o.seenHowto;
+      }
+    } catch (e) { /* 讀不到就用空白存檔 */ }
+    return d;
+  }
+  function persist() { try { localStorage.setItem(KEY, JSON.stringify(save)); } catch (e) { /* 存不了照樣能玩 */ } }
+  var save = loadSave();
+
+  /* ---------- 小工具 ---------- */
+  function fmt(ms) { var s = Math.floor(ms / 1000); return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); }
+  function dateKey(d) { return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
+  function dayNumber(d) { return Math.round((new Date(d.getFullYear(), d.getMonth(), d.getDate()) - EPOCH) / 864e5); }
+  function dailyIndex(d) { var m = L.daily.length; return ((dayNumber(d) % m) + m) % m; }
+  function streak() {
+    var d = new Date(), n = 0;
+    if (!save.daily[dateKey(d)]) d.setDate(d.getDate() - 1);
+    while (save.daily[dateKey(d)]) { n++; d.setDate(d.getDate() - 1); }
+    return n;
+  }
+  function campaignDone() { return L.campaign.filter(function (p) { return save.campaign[p.id]; }).length; }
+  function firstOpen() { for (var i = 0; i < L.campaign.length; i++) if (!save.campaign[L.campaign[i].id]) return i; return -1; }
+  function heartsHtml(n) {
+    var s = "";
+    for (var i = 0; i < HEARTS; i++) s += ART.icon("heart", i < n ? "" : "gone");
+    return s;
+  }
+  var toastTimer = 0;
+  function toast(msg) {
+    var t = $("toast"); t.textContent = msg; t.hidden = false;
+    clearTimeout(toastTimer); toastTimer = setTimeout(function () { t.hidden = true; }, 2200);
+  }
+
+
+  /* ---------- 音效（Web Audio 合成，不需要任何音檔） ---------- */
+  var SFX = (function () {
+    var ctx = null, master = null, lastTick = 0;
+    function ensure() {
+      if (!save.settings.sound) return null;
+      try {
+        if (!ctx) {
+          var AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null;
+          ctx = new AC(); master = ctx.createGain(); master.gain.value = .32; master.connect(ctx.destination);
+        }
+        if (ctx.state === "suspended") ctx.resume();
+      } catch (e) { return null; }
+      return ctx;
+    }
+    /* 一個音：頻率、起始延遲、長度、波形、音量、可滑向的目標頻率 */
+    function tone(f, at, dur, type, vol, to) {
+      var t0 = ctx.currentTime + at, o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = type || "sine"; o.frequency.setValueAtTime(f, t0);
+      if (to) o.frequency.exponentialRampToValueAtTime(to, t0 + dur);
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(vol || .5, t0 + .012);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+      o.connect(g); g.connect(master); o.start(t0); o.stop(t0 + dur + .03);
+    }
+    function seq(notes, gap, dur, type, vol) {
+      notes.forEach(function (f, i) { tone(f, i * gap, dur, type, vol); });
+    }
+    return {
+      /* 解鎖：第一次碰畫面時就把 AudioContext 叫醒（手機瀏覽器要求） */
+      unlock: function () { ensure(); },
+      click: function () { if (ensure()) tone(740, 0, .05, "triangle", .35); },
+      cross: function () {
+        if (!ensure()) return;
+        var n = performance.now(); if (n - lastTick < 35) return; lastTick = n;
+        tone(520, 0, .05, "sine", .4, 430);
+      },
+      uncross: function () {
+        if (!ensure()) return;
+        var n = performance.now(); if (n - lastTick < 35) return; lastTick = n;
+        tone(360, 0, .05, "sine", .35, 450);
+      },
+      start: function () { if (ensure()) seq([523.25, 659.25, 783.99, 1046.5], .085, .16, "triangle", .45); },
+      good: function () {
+        if (!ensure()) return;
+        tone(300, 0, .13, "sawtooth", .22, 170);      /* 汪 */
+        tone(880, .07, .12, "sine", .4);
+        tone(1318.5, .15, .22, "sine", .38);
+      },
+      bad: function () {
+        if (!ensure()) return;
+        tone(210, 0, .16, "sawtooth", .3, 120);
+        tone(180, .17, .26, "sawtooth", .3, 90);
+      },
+      hint: function () { if (ensure()) seq([880, 1174.7], .08, .12, "sine", .3); },
+      win: function () {
+        if (!ensure()) return;
+        seq([523.25, 659.25, 783.99, 1046.5], .1, .18, "triangle", .45);
+        tone(783.99, .46, .5, "triangle", .35); tone(1046.5, .46, .5, "triangle", .35); tone(1318.5, .46, .6, "triangle", .4);
+        tone(1568, .66, .7, "sine", .25);
+      },
+      lose: function () {
+        if (!ensure()) return;
+        seq([392, 329.63, 261.63, 196], .17, .26, "triangle", .4);
+      }
+    };
+  })();
+
+  /* ---------- 棋盤 ---------- */
+  function buildBoard(el, p, interactive) {
+    var n = p.n, html = "";
+    for (var i = 0; i < n * n; i++) {
+      var r = (i / n) | 0, c = i % n, g = p.regions[i];
+      var cls = "cell r" + (g.charCodeAt(0) - 65);
+      if (r > 0) cls += p.regions[i - n] === g ? " t1" : " t2";
+      if (c > 0) cls += p.regions[i - 1] === g ? " l1" : " l2";
+      html += interactive
+        ? '<button type="button" class="' + cls + '" data-i="' + i + '" tabindex="' + (i === 0 ? 0 : -1) + '"></button>'
+        : '<div class="' + cls + '"></div>';
+    }
+    el.style.setProperty("--n", n);
+    el.innerHTML = html;
+    return el.children;
+  }
+  function breedOf(p, i) { return p.regions.charCodeAt(i) - 65; }
+  function staticBoard(el, p, crosses) {
+    var cells = buildBoard(el, p, false);
+    p.solution.forEach(function (c, r) { cells[r * p.n + c].innerHTML = ART.dog(breedOf(p, r * p.n + c)); });
+    (crosses || []).forEach(function (i) { cells[i].innerHTML = ART.icon("x"); });
+  }
+
+  /* ---------- 畫面切換 ---------- */
+  var screens = ["s-home", "s-levels", "s-game"];
+  function show(id) {
+    screens.forEach(function (s) { $(s).hidden = s !== id; });
+    syncClock();
+  }
+  var openDlg = null, lastFocus = null;
+  function openDialog(id, focusId) {
+    if (openDlg) $(openDlg).hidden = true; else lastFocus = document.activeElement;
+    openDlg = id; $(id).hidden = false;
+    var f = $(focusId); if (f) f.focus();
+    syncClock();
+  }
+  function closeDialog() {
+    if (!openDlg) return;
+    $(openDlg).hidden = true; openDlg = null;
+    if (lastFocus && document.contains(lastFocus) && lastFocus.offsetParent) lastFocus.focus();
+    syncClock();
+  }
+
+  /* ---------- 首頁 ---------- */
+  function renderHome() {
+    var done = campaignDone(), total = L.campaign.length, open = firstOpen();
+    $("home-campaign-sub").textContent = open < 0 ? "全部 " + total + " 關都過了" : "第 " + (open + 1) + " 關 · 已過 " + done + " / " + total;
+    var now = new Date(), rec = save.daily[dateKey(now)], st = streak();
+    var s = (now.getMonth() + 1) + "/" + now.getDate();
+    $("home-daily-sub").innerHTML = s + (rec ? " · " + ART.icon("check") + "今天完成了" : " · 今天還沒玩") + (st > 0 ? " · 連續 " + st + " 天" : "");
+  }
+  function goHome() { renderHome(); show("s-home"); }
+
+  /* ---------- 關卡選單 ---------- */
+  function renderLevels() {
+    var open = firstOpen(), html = "", lastN = 0;
+    L.campaign.forEach(function (p, i) {
+      if (p.n !== lastN) {
+        if (lastN) html += "</div></section>";
+        lastN = p.n;
+        html += '<section><div class="class-h"><b>' + p.n + "×" + p.n + "</b><span>" + (CLASS_NAMES[p.n] || "") + '</span></div><div class="lv-grid">';
+      }
+      var rec = save.campaign[p.id];
+      if (rec) {
+        html += '<button type="button" class="lv done" data-lv="' + i + '" aria-label="第 ' + (i + 1) + " 關，已過關，最佳 " + fmt(rec.best) + "，愛心 " + rec.hearts + '">' +
+          '<span class="lv-n">' + (i + 1) + '</span><span class="lv-face">' + ART.dog(i) + '</span>' +
+          '<span class="lv-m"><span>' + fmt(rec.best) + '</span><span class="hrow">' + heartsHtml(rec.hearts) + "</span></span></button>";
+      } else if (i === open) {
+        html += '<button type="button" class="lv now" data-lv="' + i + '" aria-label="第 ' + (i + 1) + ' 關，可以玩"><span class="lv-n">' + (i + 1) + '</span><span class="lv-m">出發</span></button>';
+      } else {
+        html += '<button type="button" class="lv locked" disabled aria-label="第 ' + (i + 1) + ' 關，尚未解鎖"><span class="lv-n">' + (i + 1) + "</span>" + ART.icon("lock") + "</button>";
+      }
+    });
+    if (lastN) html += "</div></section>";
+    $("level-list").innerHTML = html;
+    $("levels-progress").textContent = "已過 " + campaignDone() + " / " + L.campaign.length;
+  }
+  function goLevels() {
+    renderLevels(); show("s-levels");
+    var now = document.querySelector(".lv.now");
+    if (now) { now.scrollIntoView({ block: "center" }); now.focus(); }
+  }
+
+  /* ---------- 遊戲狀態 ---------- */
+  var G = null, cellEls = [], drag = null, tickTimer = 0;
+
+  function newGame(mode, index, dkey) {
+    var p = mode === "daily" ? L.daily[index] : L.campaign[index];
+    return {
+      mode: mode, index: index, dkey: dkey || null, p: p, n: p.n,
+      cells: new Array(p.n * p.n).fill(EMPTY),
+      hearts: HEARTS, hints: HINTS, hintsUsed: 0, elapsed: 0, started: false, runningSince: 0,
+      paused: false, over: false, undo: [], hint: null, focus: 0
+    };
+  }
+  function startGame(mode, index, dkey) {
+    if (!(G && !G.over && G.mode === mode && G.index === index && G.dkey === (dkey || null))) { G = newGame(mode, index, dkey); SFX.start(); }
+    mountGame();
+  }
+  function mountGame() {
+    var p = G.p;
+    if (G.mode === "daily") {
+      var parts = G.dkey.split("-");
+      $("g-title").textContent = "每日一題";
+      $("g-sub").textContent = (+parts[1]) + "/" + (+parts[2]) + " · " + p.n + "×" + p.n;
+    } else {
+      $("g-title").textContent = "第 " + (G.index + 1) + " 關";
+      $("g-sub").textContent = p.n + "×" + p.n + " " + (CLASS_NAMES[p.n] || "");
+    }
+    cellEls = buildBoard($("board"), p, true);
+    for (var i = 0; i < G.cells.length; i++) paint(i);
+    setRoving(G.focus || 0);
+    renderHud(); renderHint();
+    $("pause-cover").hidden = !G.paused; $("board").style.visibility = G.paused ? "hidden" : "";
+    show("s-game");
+  }
+  function cellLabel(i) {
+    var r = (i / G.n) | 0, c = i % G.n, st = G.cells[i];
+    return "第 " + (r + 1) + " 列第 " + (c + 1) + " 行，" + ART.breeds[breedOf(G.p, i) % ART.breeds.length].name + "草皮，" +
+      (st === DOG ? "狗狗" : st === CROSS ? "已打叉" : st === WRONG ? "確定不是" : "空白");
+  }
+  function paint(i, anim) {
+    var el = cellEls[i], st = G.cells[i];
+    el.classList.remove("s-x", "s-dog", "s-no", "pop", "shake");
+    if (st === CROSS) { el.innerHTML = ART.icon("x"); if (anim) el.classList.add("s-x"); }
+    else if (st === DOG) { el.innerHTML = ART.dog(breedOf(G.p, i)); el.classList.add("s-dog"); if (anim) el.classList.add("pop"); }
+    else if (st === WRONG) { el.innerHTML = ART.icon("no"); el.classList.add("s-no"); if (anim) { void el.offsetWidth; el.classList.add("shake"); } }
+    else el.innerHTML = "";
+    el.setAttribute("aria-label", cellLabel(i));
+  }
+  function renderHud() {
+    $("hearts").innerHTML = heartsHtml(G.hearts);
+    $("hearts").setAttribute("aria-label", "愛心剩 " + G.hearts + " 顆");
+    $("hint-left").textContent = G.hints;
+    $("btn-hint").disabled = G.hints <= 0 && !G.hint;
+    $("btn-hint").setAttribute("aria-label", "提示，剩 " + G.hints + " 次");
+    $("btn-undo").disabled = !G.undo.length;
+    $("timer").textContent = fmt(now());
+  }
+
+  /* ---------- 計時 ---------- */
+  function now() { return G ? G.elapsed + (G.runningSince ? performance.now() - G.runningSince : 0) : 0; }
+  function syncClock() {
+    if (!G) return;
+    var should = G.started && !G.paused && !G.over && !document.hidden && !openDlg && !$("s-game").hidden;
+    if (should && !G.runningSince) G.runningSince = performance.now();
+    else if (!should && G.runningSince) { G.elapsed += performance.now() - G.runningSince; G.runningSince = 0; }
+    clearInterval(tickTimer);
+    if (should) tickTimer = setInterval(function () { $("timer").textContent = fmt(now()); }, 250);
+  }
+  function touchClock() { if (!G.started) { G.started = true; syncClock(); } }
+  function setPaused(v) {
+    if (!G || G.over) return;
+    G.paused = v; $("pause-cover").hidden = !v; $("board").style.visibility = v ? "hidden" : "";
+    $("btn-pause").innerHTML = ART.icon(v ? "play" : "pause");
+    $("btn-pause").setAttribute("aria-label", v ? "繼續" : "暫停");
+    syncClock();
+    if (v) $("btn-resume").focus();
+  }
+
+  /* ---------- 動作 ---------- */
+  function playable() { return G && !G.over && !G.paused; }
+  function setCross(i, v, entry) {
+    var prev = G.cells[i];
+    if (prev === v || prev === DOG || prev === WRONG) return;
+    G.cells[i] = v; paint(i, true);
+    if (v === CROSS) SFX.cross(); else SFX.uncross();
+    if (entry) entry.push([i, prev, v]);
+  }
+  function pushUndo(entry) { if (entry.length) { G.undo.push(entry); if (G.undo.length > 200) G.undo.shift(); } renderHud(); }
+  function undo() {
+    if (!playable() || !G.undo.length) return;
+    clearHint();
+    G.undo.pop().forEach(function (e) {
+      if (G.cells[e[0]] === e[2]) { G.cells[e[0]] = e[1]; paint(e[0]); }
+    });
+    renderHud();
+  }
+  function dogsOf() { var a = []; G.cells.forEach(function (s, i) { if (s === DOG) a.push(i); }); return a; }
+  function tryDog(i) {
+    var st = G.cells[i];
+    if (st === DOG || st === WRONG) return;
+    touchClock(); clearHint();
+    var r = (i / G.n) | 0, c = i % G.n;
+    if (E.isSolutionCell(G.p, r, c)) {
+      G.cells[i] = DOG; paint(i, true);
+      renderHud();
+      if (E.isComplete(G.p, dogsOf())) win(); else SFX.good();
+    } else {
+      G.cells[i] = WRONG; paint(i, true);
+      G.hearts--; renderHud();
+      if (G.hearts > 0) SFX.bad();
+      var lost = $("hearts").children[G.hearts]; if (lost) lost.classList.add("lost");
+      if (G.hearts <= 0) lose();
+    }
+  }
+  /* 點一下：打叉／取消叉；同一格快速連點兩下：放狗狗 */
+  var DOUBLE_MS = 320, lastTap = { i: -1, t: 0, entry: null };
+  function tap(i) {
+    if (!playable()) return;
+    var st = G.cells[i], t = performance.now();
+    if (st === DOG || st === WRONG) { lastTap.i = -1; return; }
+    if (lastTap.i === i && t - lastTap.t < DOUBLE_MS) {
+      var k = G.undo.indexOf(lastTap.entry); if (k >= 0) G.undo.splice(k, 1);
+      lastTap.i = -1;
+      tryDog(i); return;
+    }
+    touchClock(); clearHint();
+    var e = []; setCross(i, st === EMPTY ? CROSS : EMPTY, e); pushUndo(e);
+    lastTap = { i: i, t: t, entry: e };
+  }
+  function clearCross(i) {
+    if (!playable() || G.cells[i] !== CROSS) return;
+    clearHint(); var e = []; setCross(i, EMPTY, e); pushUndo(e);
+  }
+
+  /* ---------- 提示 ---------- */
+  function validCells(a) { return Array.isArray(a) ? a.filter(function (i) { return Number.isInteger(i) && i >= 0 && i < G.cells.length; }) : []; }
+  function askHint() {
+    if (!playable()) return;
+    if (G.hint) { renderHint(); return; }
+    if (G.hints <= 0) return;
+    var crosses = []; G.cells.forEach(function (s, i) { if (s === CROSS || s === WRONG) crosses.push(i); });
+    var h = null;
+    try { h = E.nextHint(G.p, { dogs: dogsOf(), crosses: crosses }, { autoExclude: true }); } catch (e) { h = null; }
+    if (!h || !validCells(h.cells).length) { toast("現在想不到提示，再觀察一下吧"); return; }
+    touchClock();
+    G.hints--; G.hintsUsed++;
+    G.hint = { type: h.type, cells: validCells(h.cells), because: validCells(h.because), text: String(h.text || "") };
+    renderHud(); renderHint();
+  }
+  function renderHint() {
+    for (var i = 0; i < cellEls.length; i++) cellEls[i].classList.remove("h-why", "h-go");
+    var h = G && G.hint;
+    $("hint-panel").hidden = !h; $("toolbar").hidden = !!h;
+    if (!h) return;
+    h.because.forEach(function (i) { cellEls[i].classList.add("h-why"); });
+    h.cells.forEach(function (i) { cellEls[i].classList.remove("h-why"); cellEls[i].classList.add("h-go"); });
+    $("hint-text").textContent = h.text || (h.type === "dog" ? "這一格可以放狗狗。" : h.type === "fix" ? "這些叉打錯了，裡面有狗狗。" : "這些格子可以打叉。");
+    $("hint-dog").innerHTML = ART.dog(breedOf(G.p, h.cells[0])); SFX.hint();
+    $("btn-hint-apply").focus({ preventScroll: true });
+  }
+  function clearHint() { if (G && G.hint) { G.hint = null; renderHint(); renderHud(); } }
+  function applyHint() {
+    if (!playable() || !G.hint) return;
+    var h = G.hint; G.hint = null; renderHint();
+    if (h.type === "dog") {
+      var i = h.cells[0];
+      if (E.isSolutionCell(G.p, (i / G.n) | 0, i % G.n)) tryDog(i); else toast("這個提示怪怪的，先跳過");
+    } else if (h.type === "fix") {
+      h.cells.forEach(function (j) { if (G.cells[j] === CROSS) { G.cells[j] = EMPTY; paint(j); } });
+    } else {
+      var e = []; h.cells.forEach(function (j) { if (G.cells[j] === EMPTY) setCross(j, CROSS, e); }); pushUndo(e);
+    }
+    if (G && !G.over) { renderHud(); setRoving(G.focus, true); }
+  }
+
+  /* ---------- 過關／失敗 ---------- */
+  function shareText() {
+    var p = G.p, head;
+    if (G.mode === "daily") { var d = G.dkey.split("-"); head = "Doggydoku 每日一題 " + (+d[1]) + "/" + (+d[2]); }
+    else head = "Doggydoku 闖關 第 " + (G.index + 1) + " 關（" + p.n + "×" + p.n + "）";
+    var hearts = ""; for (var i = 0; i < HEARTS; i++) hearts += i < G.hearts ? "♥" : "♡";
+    return head + "\n⏱ " + fmt(G.elapsed) + "　" + hearts + "　提示 " + G.hintsUsed;
+  }
+  function win() {
+    G.over = true; syncClock(); SFX.win();
+    var t = Math.max(1000, Math.round(G.elapsed)), sub;
+    if (G.mode === "campaign") {
+      var old = save.campaign[G.p.id];
+      var better = !old || t < old.best;
+      save.campaign[G.p.id] = { best: old ? Math.min(old.best, t) : t, hearts: old ? Math.max(old.hearts, G.hearts) : G.hearts };
+      sub = "第 " + (G.index + 1) + " 關" + (old ? (better ? " · 刷新最佳時間" : " · 最佳 " + fmt(old.best)) : "");
+      var hasNext = G.index + 1 < L.campaign.length;
+      $("btn-win-next").hidden = false;
+      $("btn-win-next").textContent = hasNext ? "下一關" : "回關卡選單";
+    } else {
+      var o = save.daily[G.dkey];
+      if (!o || t < o.t) save.daily[G.dkey] = { t: t, hearts: G.hearts, hints: G.hintsUsed };
+      var d = G.dkey.split("-");
+      sub = (+d[1]) + "/" + (+d[2]) + " 每日一題 · 連續 " + streak() + " 天";
+      $("btn-win-next").hidden = true;
+    }
+    persist();
+    $("win-sub").textContent = sub;
+    $("win-time").textContent = fmt(G.elapsed);
+    $("win-hearts").innerHTML = heartsHtml(G.hearts);
+    $("win-hints").textContent = G.hintsUsed + " 次";
+    var dogs = ""; for (var k = 0; k < G.n; k++) dogs += ART.dog(k);
+    $("win-dogs").innerHTML = dogs;
+    var conf = "";
+    for (k = 0; k < 18; k++) {
+      conf += ART.icon(k % 3 ? "bone" : "paw", k % 3 ? "" : "p").replace("<svg ", '<svg style="left:' + ((k * 37 + 11) % 96) + "%;animation-duration:" + (2.6 + (k % 5) * .5) + "s;animation-delay:" + ((k * 7) % 10) / 8 + 's" ');
+    }
+    $("confetti").innerHTML = conf;
+    $("copy-fallback").hidden = true;
+    $("btn-win-copy").textContent = "複製成績";
+    setTimeout(function () { openDialog("dlg-win", G.mode === "campaign" ? "btn-win-next" : "btn-win-copy"); }, 650);
+  }
+  function lose() {
+    G.over = true; syncClock(); SFX.lose();
+    $("lose-dog").innerHTML = ART.dog(G.index);
+    setTimeout(function () { openDialog("dlg-lose", "btn-lose-retry"); }, 550);
+  }
+  function retry() { var g = G; G = null; closeDialog(); startGame(g.mode, g.index, g.dkey); }
+  function leaveGame() {
+    var mode = G ? G.mode : "campaign";
+    if (G) { G.paused = false; clearHint(); }
+    if (openDlg) { $(openDlg).hidden = true; openDlg = null; }
+    if (mode === "daily") goHome(); else goLevels();
+  }
+
+  /* ---------- 棋盤輸入：指標 ---------- */
+  function cellAt(e) {
+    var b = $("board"), rect = b.getBoundingClientRect();
+    var x = e.clientX - rect.left - b.clientLeft, y = e.clientY - rect.top - b.clientTop;
+    var w = b.clientWidth, h = b.clientHeight;
+    if (x < 0 || y < 0 || x >= w || y >= h) return -1;
+    return Math.floor(y / (h / G.n)) * G.n + Math.floor(x / (w / G.n));
+  }
+  function setRoving(i, focus) {
+    if (!cellEls.length) return;
+    if (cellEls[G.focus]) cellEls[G.focus].tabIndex = -1;
+    G.focus = i; cellEls[i].tabIndex = 0;
+    if (focus) cellEls[i].focus({ preventScroll: true });
+  }
+  function dragApply(i) {
+    if (drag.kind === "paint") setCross(i, CROSS, drag.entry);
+    else if (drag.kind === "erase") setCross(i, EMPTY, drag.entry);
+  }
+  function endDrag(doTap) {
+    if (!drag) return;
+    clearTimeout(drag.long);
+    var d = drag; drag = null;
+    if (d.moved || d.longDone) { if (d.entry.length) pushUndo(d.entry); }
+    else if (doTap) tap(d.start);
+  }
+  function bindBoard() {
+    var b = $("board");
+    b.addEventListener("contextmenu", function (e) { e.preventDefault(); });
+    b.addEventListener("pointerdown", function (e) {
+      if (!playable() || drag) return;
+      var i = cellAt(e); if (i < 0) return;
+      e.preventDefault();
+      setRoving(i, true);
+      if (e.button === 2) { clearCross(i); return; }
+      if (e.button > 0) return;
+      try { b.setPointerCapture(e.pointerId); } catch (err) { /* 沒有也能用 */ }
+      drag = { id: e.pointerId, start: i, last: i, moved: false, kind: null, entry: [], longDone: false, long: 0 };
+    });
+    b.addEventListener("pointermove", function (e) {
+      if (!drag || e.pointerId !== drag.id || drag.longDone) return;
+      var i = cellAt(e);
+      if (i < 0 || i === drag.last) return;
+      if (!drag.moved) {
+        drag.moved = true; clearTimeout(drag.long);
+        var st = G.cells[drag.start];
+        drag.kind = st === CROSS ? "erase" : "paint";
+        touchClock(); clearHint(); lastTap.i = -1;
+        dragApply(drag.start);
+      }
+      drag.last = i; dragApply(i);
+    });
+    b.addEventListener("pointerup", function (e) { if (drag && e.pointerId === drag.id) endDrag(true); });
+    b.addEventListener("pointercancel", function (e) { if (drag && e.pointerId === drag.id) endDrag(false); });
+
+    /* 鍵盤 */
+    b.addEventListener("keydown", function (e) {
+      if (!playable()) return;
+      var t = e.target.closest ? e.target.closest(".cell") : null; if (!t) return;
+      var i = +t.dataset.i, n = G.n, r = (i / n) | 0, c = i % n, k = e.key;
+      if (k === "ArrowUp" && r > 0) setRoving(i - n, true);
+      else if (k === "ArrowDown" && r < n - 1) setRoving(i + n, true);
+      else if (k === "ArrowLeft" && c > 0) setRoving(i - 1, true);
+      else if (k === "ArrowRight" && c < n - 1) setRoving(i + 1, true);
+      else if (k === "Enter" || k === " ") tap(i);
+      else if (k === "Backspace" || k === "Delete") clearCross(i);
+      else if (k === "x" || k === "X") { if (G.cells[i] === CROSS) clearCross(i); else if (G.cells[i] === EMPTY) { touchClock(); clearHint(); var en = []; setCross(i, CROSS, en); pushUndo(en); } }
+      else if (k === "d" || k === "D") tryDog(i);
+      else if (k.indexOf("Arrow") !== 0) return;
+      e.preventDefault();
+    });
+    b.addEventListener("click", function (e) { e.preventDefault(); });
+  }
+
+  /* ---------- 複製成績 ---------- */
+  function copyScore() {
+    var text = shareText(), btn = $("btn-win-copy");
+    function fallback() {
+      $("copy-fallback").hidden = false;
+      var ta = $("copy-text"); ta.value = text; ta.focus(); ta.select();
+    }
+    try {
+      navigator.clipboard.writeText(text).then(function () { btn.textContent = "已複製"; toast("成績已複製，貼給朋友吧"); }, fallback);
+    } catch (e) { fallback(); }
+  }
+
+  /* ---------- 綁定 ---------- */
+  function bind() {
+    $("btn-levels-back").innerHTML = ART.icon("back");
+    $("btn-game-back").innerHTML = ART.icon("back");
+    $("btn-pause").innerHTML = ART.icon("pause");
+    $("btn-settings-game").innerHTML = ART.icon("gear");
+    $("timer-ic").innerHTML = ART.icon("clock");
+    $("tip-x").innerHTML = ART.icon("x");
+    $("tip-dog").innerHTML = ART.dog(1);
+    $("undo-ic").innerHTML = ART.icon("undo");
+    $("hint-ic").innerHTML = ART.icon("bone");
+    $("lg-x").innerHTML = ART.icon("x");
+    $("lg-dog").innerHTML = ART.dog(1);
+    $("lg-no").innerHTML = ART.icon("no");
+    staticBoard($("hero-board"), DEMO, [0, 1, 2, 3, 5, 9, 10, 20, 21]);
+    staticBoard($("howto-board"), DEMO);
+
+    $("btn-campaign").onclick = goLevels;
+    $("btn-daily").onclick = function () { var d = new Date(); startGame("daily", dailyIndex(d), dateKey(d)); };
+    $("btn-howto").onclick = function () { openDialog("dlg-howto", "btn-howto-close"); };
+    $("btn-howto-close").onclick = function () { save.seenHowto = true; persist(); closeDialog(); SFX.start(); };
+    $("btn-settings-home").onclick = $("btn-settings-game").onclick = function () {
+      $("reset-confirm").hidden = true;
+      openDialog("dlg-settings", "btn-settings-close");
+    };
+    $("btn-settings-close").onclick = closeDialog;
+    $("btn-reset").onclick = function () { $("reset-confirm").hidden = false; $("btn-reset-no").focus(); };
+    $("btn-reset-no").onclick = function () { $("reset-confirm").hidden = true; };
+    $("btn-reset-yes").onclick = function () {
+      var keep = save.settings; save = blank(); save.settings = keep; save.seenHowto = true; persist();
+      G = null; closeDialog(); goHome(); toast("進度已清除");
+    };
+    $("btn-levels-back").onclick = goHome;
+    $("level-list").onclick = function (e) {
+      var b = e.target.closest(".lv"); if (!b || b.disabled) return;
+      startGame("campaign", +b.dataset.lv);
+    };
+    $("btn-game-back").onclick = leaveGame;
+    $("btn-pause").onclick = function () { setPaused(!G.paused); };
+    $("btn-resume").onclick = function () { setPaused(false); setRoving(G.focus, true); };
+    $("btn-undo").onclick = undo;
+    $("btn-hint").onclick = askHint;
+    $("btn-hint-apply").onclick = applyHint;
+    $("btn-hint-close").onclick = function () { clearHint(); setRoving(G.focus, true); };
+    $("btn-win-next").onclick = function () {
+      var next = G.index + 1; closeDialog(); G = null;
+      if (next < L.campaign.length) startGame("campaign", next); else goLevels();
+    };
+    $("btn-win-copy").onclick = copyScore;
+    $("btn-win-home").onclick = function () { closeDialog(); G = null; goHome(); };
+    $("btn-lose-retry").onclick = retry;
+    $("btn-lose-back").onclick = function () { G = null; leaveGame(); };
+    document.addEventListener("visibilitychange", syncClock);
+    /* 音效：第一次碰畫面就解鎖；一般按鈕點下去有「喀」一聲（棋盤格、開始玩另有專屬音） */
+    ["pointerdown", "keydown"].forEach(function (ev) { document.addEventListener(ev, SFX.unlock, { capture: true, passive: true }); });
+    document.addEventListener("click", function (e) {
+      var b = e.target.closest && e.target.closest("button");
+      if (!b || b.disabled || b.classList.contains("cell") || b.id === "btn-howto-close") return;
+      if (b.id === "btn-hint" || b.id === "btn-undo") { SFX.click(); return; }
+      if (b.classList.contains("lv") || b.id === "btn-daily") return; /* 這幾個會接著播開始音 */
+      SFX.click();
+    }, true);
+    var sw = $("sw-sound"); sw.checked = save.settings.sound;
+    sw.onchange = function () { save.settings.sound = sw.checked; persist(); if (sw.checked) SFX.click(); };
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && (openDlg === "dlg-howto" || openDlg === "dlg-settings")) {
+        if (openDlg === "dlg-howto") { save.seenHowto = true; persist(); }
+        closeDialog();
+      }
+    });
+    ["dlg-howto", "dlg-settings"].forEach(function (id) {
+      $(id).addEventListener("click", function (e) { if (e.target === this) { if (id === "dlg-howto") { save.seenHowto = true; persist(); } closeDialog(); } });
+    });
+    bindBoard();
+  }
+
+  /* ---------- 啟動（含檢視器熱更新時保留盤面） ---------- */
+  function snapshot() {
+    if (!G || G.over) return {};
+    syncClock();
+    return { g: { mode: G.mode, index: G.index, dkey: G.dkey, id: G.p.id, cells: G.cells.slice(), hearts: G.hearts, hints: G.hints, hintsUsed: G.hintsUsed, elapsed: now(), started: G.started, undo: G.undo } };
+  }
+  function start(data) {
+    bind();
+    var s = data && data.g, restored = false;
+    try {
+      if (s) {
+        var list = s.mode === "daily" ? L.daily : L.campaign, p = list[s.index];
+        if (p && p.id === s.id && Array.isArray(s.cells) && s.cells.length === p.n * p.n) {
+          G = newGame(s.mode, s.index, s.dkey);
+          G.cells = s.cells.slice(); G.hearts = s.hearts; G.hints = s.hints; G.hintsUsed = s.hintsUsed;
+          G.elapsed = s.elapsed || 0; G.started = !!s.started; G.undo = s.undo || [];
+          mountGame(); restored = true;
+        }
+      }
+    } catch (e) { G = null; }
+    if (!restored) {
+      goHome();
+      if (!save.seenHowto) openDialog("dlg-howto", "btn-howto-close");
+    }
+  }
+  start({});
+})();
+
+</script>
+</body>
+</html>
